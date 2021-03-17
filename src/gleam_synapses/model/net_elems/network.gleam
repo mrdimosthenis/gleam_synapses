@@ -171,26 +171,26 @@ pub fn fit(
   |> lazy_realization
 }
 
-pub type NetworkSerialized =
+type NetworkSerialized =
   List(LayerSerialized)
 
-pub fn serialized(network: Network) -> NetworkSerialized {
+fn serialized(network: Network) -> NetworkSerialized {
   network
   |> zlist.map(layer.serialized)
   |> zlist.to_list
 }
 
-pub fn deserialized(network_serialized: NetworkSerialized) -> Network {
+fn deserialized(network_serialized: NetworkSerialized) -> Network {
   network_serialized
   |> zlist.of_list
   |> zlist.map(layer.deserialized)
 }
 
-pub fn json_encoded(network_serialized: NetworkSerialized) -> JsonValue {
+fn json_encoded(network_serialized: NetworkSerialized) -> JsonValue {
   jsone.array(network_serialized, layer.json_encoded)
 }
 
-pub fn json_decoder() -> Decoder(NetworkSerialized) {
+fn json_decoder() -> Decoder(NetworkSerialized) {
   decode.list(layer.json_decoder())
 }
 
