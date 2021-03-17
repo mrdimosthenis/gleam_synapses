@@ -1,11 +1,15 @@
 {application, gleam_synapses,
  [{description, "A Gleam project"},
-  {vsn, "1.0.0"},
+  {vsn, "0.0.1"},
   {registered, []},
   {applications,
    [kernel,
     stdlib,
-    gleam_stdlib
+    gleam_stdlib,
+    gleam_zlists,
+    gleam_decode,
+    gleam_jsone,
+    minigen
    ]},
   {env,[]},
   {modules, []},
