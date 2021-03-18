@@ -5,7 +5,7 @@ import gleam_synapses/model/encoding/preprocessor
 import gleam_synapses/model/encoding/serialization.{Preprocessor}
 
 fn datapoint_1() -> Map(String, String) {
-  [tuple("a", "a1"), tuple("b", "b1"), tuple("c", "-8.0"), tuple("d", "3.0")]
+  [tuple("a", "a1"), tuple("b", "b1"), tuple("c", "-8.0"), tuple("d", "3")]
   |> map.from_list
 }
 

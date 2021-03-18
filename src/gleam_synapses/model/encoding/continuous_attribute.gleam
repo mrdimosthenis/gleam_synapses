@@ -1,5 +1,6 @@
 import gleam/string
 import gleam/float
+import gleam/int
 import gleam/map.{Map}
 import gleam/result
 import gleam_zlists.{ZList} as zlist
@@ -10,11 +11,11 @@ import gleam_synapses/model/encoding/serialization.{
 }
 
 pub fn parse(s: String) -> Float {
-  let Ok(res) =
-    s
-    |> string.trim
-    |> float.parse
-  res
+  let trimmed = string.trim(s)
+  case tuple(float.parse(trimmed), int.parse(trimmed)) {
+    tuple(Ok(x), _) -> x
+    tuple(_, Ok(x)) -> int.to_float(x)
+  }
 }
 
 pub fn updated(
