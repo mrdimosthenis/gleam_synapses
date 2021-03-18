@@ -4,6 +4,8 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+% this module will be redundant when the gleam stdlib will introduce test timeout parameter  
+
 always_pass_test_() ->
     {timeout, 300, ?_assertEqual(1, 1)}.
 
