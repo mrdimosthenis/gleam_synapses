@@ -22,4 +22,3 @@ just_created_preprocessor_of_to_json_test_() ->
             preprocessor_test:just_recreated_preprocessor_json()
         )
     }.
-
