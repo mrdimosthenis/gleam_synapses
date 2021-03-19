@@ -1,6 +1,12 @@
 name = "gleam_synapses"
+version = "0.0.1"
 
-# [docs]
-# links = [
-#   { title = 'GitHub', href = 'https://github.com/username/project_name' }
-# ]
+[docs]
+links = [
+  { title = 'GitHub', href = 'https://github.com/mrdimosthenis/gleam_synapses' }
+]
+
+[repository]
+type = "github"
+user = "mrdimosthenis"
+repo = "gleam_synapses"
