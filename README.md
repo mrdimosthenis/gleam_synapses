@@ -33,17 +33,17 @@ Call `neural_network.init` and provide the size of each _layer_.
 
 ```rust
 let layers = [4, 6, 5, 3]
-let my_network = neural_network.init(layers)
+let sigmoid_network = neural_network.init(layers)
 ```
 
-`my_network` has 4 layers. The first layer has 4 input nodes and the last layer has 3 output nodes.
+`sigmoid_network` has 4 layers. The first layer has 4 input nodes and the last layer has 3 output nodes.
 There are 2 hidden layers with 6 and 5 neurons respectively.
 
 ### Get a prediction
 
 ```rust
 let input_values = [1.0, 0.5625, 0.511111, 0.47619]
-let prediction = neural_network.prediction(my_network, input_values)
+let prediction = neural_network.prediction(sigmoid_network, input_values)
 ```
 
 `prediction` should be something like `[ 0.8296, 0.6996, 0.4541 ]`.
@@ -57,7 +57,7 @@ let learning_rate = 0.5
 let expected_output = [0.0, 1.0, 0.0]
 
 let fit_network =
-  neural_network.fit(my_network, learning_rate, input_values, expected_output)
+  neural_network.fit(sigmoid_network, learning_rate, input_values, expected_output)
 ```
 
 `fit_network` is a new neural network trained with a single observation. To train a neural network, you should fit with multiple datapoints.
@@ -88,7 +88,7 @@ let weight_init_f = fn(layer_index) {
   factor *. random_weight
 }
 
-let customized_network =
+let my_network =
   neural_network.customized_init(layers, activation_f, weight_init_f)
 ```
 
@@ -97,7 +97,7 @@ let customized_network =
 Call `neural_network.to_svg` to take a brief look at its _svg drawing_.
 
 ```rust
-let svg = neural_network.to_svg(customized_network)
+let svg = neural_network.to_svg(my_network)
 ```
 
 ![Network Drawing](https://github.com/mrdimosthenis/gleam_synapses/blob/master/readme_resources/network-drawing.png?raw=true)
@@ -113,7 +113,7 @@ Call `neural_network.to_json` on a neural network and get a string representatio
 Use it as you like. Save `json` in the file system or insert it into a database table.
 
 ```rust
-let json = neural_network.to_json(customized_network)
+let json = neural_network.to_json(my_network)
 ```
 
 ### of_json
