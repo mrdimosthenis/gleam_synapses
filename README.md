@@ -1,6 +1,6 @@
 # gleam_synapses
 
-A **lightweight** library for **neural networks**, written in **Gleam**!
+A **neural network** library for the **Gleam** language!
 
 ![Network Video](https://github.com/mrdimosthenis/gleam_synapses/blob/master/readme_resources/network-video.gif?raw=true)
 
