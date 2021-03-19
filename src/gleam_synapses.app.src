@@ -1,5 +1,5 @@
 {application, gleam_synapses,
- [{description, "A Gleam project"},
+ [{description, "A neural network library for the Gleam language"},
   {vsn, "0.0.1"},
   {registered, []},
   {applications,
@@ -17,5 +17,5 @@
 
   {include_files, ["gleam.toml", "gen"]},
   {licenses, ["Apache 2.0"]},
-  {links, []}
+  {links, [{"GitHub", "https://github.com/mrdimosthenis/gleam_synapses"}]}
 ]}.
