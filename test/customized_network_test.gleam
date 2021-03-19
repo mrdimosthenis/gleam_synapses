@@ -45,12 +45,8 @@ pub fn neural_network_of_to_json_test() {
   }
 
   let weight_init_f = fn(_: Int) -> Float {
-    let seed =
-      10000
-      |> minigen.integer
-      |> minigen.run
     minigen.float()
-    |> minigen.run_with_seed(seed + 1)
+    |> minigen.run()
   }
 
   let just_created_neural_network_json =
