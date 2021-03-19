@@ -83,7 +83,7 @@ let weight_init_f = fn(layer_index) {
     minigen.float()
     |> minigen.run
   let random_weight = 1.0 -. 2.0 *. random_float
-  let factor = int.to_float(layer_index) +. 1.0
+  let factor = 5.0 -. int.to_float(layer_index)
 
   factor *. random_weight
 }
