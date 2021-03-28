@@ -1,7 +1,7 @@
 import gleam/float
 import decode.{Decoder}
-import gleam/jsone.{JsonValue}
 import minigen.{Generator}
+import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
 
 pub external fn math_exp(x: Float) -> Float =
   "math" "exp"

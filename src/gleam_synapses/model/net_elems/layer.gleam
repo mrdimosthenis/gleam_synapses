@@ -1,7 +1,7 @@
 import decode.{Decoder}
-import gleam/jsone.{JsonValue}
 import gleam_zlists.{ZList} as zlist
 import minigen.{Generator}
+import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
 import gleam_synapses/model/net_elems/activation.{Activation}
 import gleam_synapses/model/net_elems/neuron.{Neuron, NeuronSerialized}
 

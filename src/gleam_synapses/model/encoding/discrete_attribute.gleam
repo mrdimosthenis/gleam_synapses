@@ -2,7 +2,7 @@ import gleam/map.{Map}
 import gleam/pair
 import gleam_zlists.{ZList} as zlist
 import decode.{Decoder}
-import gleam/jsone.{JsonValue}
+import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
 import gleam_synapses/model/encoding/serialization.{
   Attribute, AttributeSerialized, DiscreteAttribute, DiscreteAttributeSerialized,
 }

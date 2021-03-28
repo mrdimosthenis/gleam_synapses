@@ -1,9 +1,8 @@
 import gleam/pair
 import decode.{Decoder}
-import gleam/jsone.{JsonValue}
 import gleam_zlists.{ZList} as zlist
 import minigen.{Generator}
-import gleam_synapses/model/json_utils
+import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
 import gleam_synapses/model/net_elems/activation.{Activation}
 import gleam_synapses/model/net_elems/neuron.{Neuron}
 import gleam_synapses/model/net_elems/layer.{Layer, LayerSerialized}
@@ -200,7 +199,7 @@ pub fn to_json(network: Network) -> String {
     network
     |> serialized
     |> json_encoded
-    |> json_utils.encode
+    |> jsone.encode
   let Ok(res) = decode.decode_dynamic(dyn, decode.string())
   res
 }
