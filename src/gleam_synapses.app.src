@@ -1,6 +1,6 @@
 {application, gleam_synapses,
  [{description, "A neural network library for the Gleam language"},
-  {vsn, "0.0.1"},
+  {vsn, "0.0.2"},
   {registered, []},
   {applications,
    [kernel,
