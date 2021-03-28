@@ -9,7 +9,6 @@
     gleam_zlists,
     gleam_decode,
     jsone,
-    gleam_jsone,
     minigen
    ]},
   {env,[]},

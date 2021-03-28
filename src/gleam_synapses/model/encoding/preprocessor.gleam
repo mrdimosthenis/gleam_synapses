@@ -3,8 +3,7 @@ import gleam/pair
 import gleam/list
 import gleam_zlists.{ZList} as zlist
 import decode.{Decoder}
-import gleam_synapses/model/json_utils
-import gleam/jsone.{JsonValue}
+import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
 import gleam_synapses/model/encoding/discrete_attribute
 import gleam_synapses/model/encoding/continuous_attribute
 import gleam_synapses/model/encoding/serialization.{
@@ -202,7 +201,7 @@ pub fn to_json(preprocessor: Preprocessor) -> String {
     preprocessor
     |> serialized
     |> json_encoded
-    |> json_utils.encode
+    |> jsone.encode
   let Ok(res) = decode.decode_dynamic(dyn, decode.string())
   res
 }
