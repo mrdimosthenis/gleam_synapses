@@ -8,7 +8,7 @@ pub type DataPreprocessor =
   serialization.Preprocessor
 
 pub fn init(
-  keys_with_discrete_flags: List(tuple(String, Bool)),
+  keys_with_discrete_flags: List(#(String, Bool)),
   datapoints: Iterator(Map(String, String)),
 ) -> DataPreprocessor {
   let keys_with_flags = zlist.of_list(keys_with_discrete_flags)

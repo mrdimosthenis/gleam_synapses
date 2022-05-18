@@ -140,31 +140,31 @@ The first parameter of [data_preprocessor.init](https://hexdocs.pm/gleam_synapse
 ```rust
 let setosa_datapoint =
   [
-    tuple("petal_length", "1.5"),
-    tuple("petal_width", "0.1"),
-    tuple("sepal_length", "4.9"),
-    tuple("sepal_width", "3.1"),
-    tuple("species", "setosa"),
+    #("petal_length", "1.5"),
+    #("petal_width", "0.1"),
+    #("sepal_length", "4.9"),
+    #("sepal_width", "3.1"),
+    #("species", "setosa"),
   ]
   |> map.from_list
   
 let versicolor_datapoint =
   [
-    tuple("petal_length", "3.8"),
-    tuple("petal_width", "1.1"),
-    tuple("sepal_length", "5.5"),
-    tuple("sepal_width", "2.4"),
-    tuple("species", "versicolor"),
+    #("petal_length", "3.8"),
+    #("petal_width", "1.1"),
+    #("sepal_length", "5.5"),
+    #("sepal_width", "2.4"),
+    #("species", "versicolor"),
   ]
   |> map.from_list
   
 let virginica_datapoint =
   [
-    tuple("petal_length", "6.0"),
-    tuple("petal_width", "2.2"),
-    tuple("sepal_length", "5.0"),
-    tuple("sepal_width", "1.5"),
-    tuple("species", "virginica"),
+    #("petal_length", "6.0"),
+    #("petal_width", "2.2"),
+    #("sepal_length", "5.0"),
+    #("sepal_width", "1.5"),
+    #("species", "virginica"),
   ]
   |> map.from_list
   
@@ -175,11 +175,11 @@ let dataset =
 let my_preprocessor =
   data_preprocessor.init(
     [
-      tuple("petal_length", False),
-      tuple("petal_width", False),
-      tuple("sepal_length", False),
-      tuple("sepal_width", False),
-      tuple("species", True),
+      #("petal_length", False),
+      #("petal_width", False),
+      #("sepal_length", False),
+      #("sepal_width", False),
+      #("species", True),
     ],
     dataset,
   )
@@ -208,8 +208,8 @@ To evaluate a neural network, you can call [statistics.root_mean_square_error](h
 ```rust
 let expected_with_output_values =
   [
-    tuple([0.0, 0.0, 1.0], [0.0, 0.0, 1.0]),
-    tuple([0.0, 0.0, 1.0], [0.0, 1.0, 1.0]),
+    #([0.0, 0.0, 1.0], [0.0, 0.0, 1.0]),
+    #([0.0, 0.0, 1.0], [0.0, 1.0, 1.0]),
   ]
   |> iterator.from_list
   

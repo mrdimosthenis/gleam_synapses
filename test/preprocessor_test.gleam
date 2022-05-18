@@ -1,6 +1,5 @@
-import gleam/should
+import gleeunit/should
 import gleam/int
-import gleam/float
 import gleam/string
 import gleam/list
 import gleam/iterator.{Iterator, Next}
@@ -15,14 +14,14 @@ fn datapoints() -> Iterator(Map(String, String)) {
   csv.iterator_of_hmaps(large_values.mnist_dataset)
 }
 
-fn keys_with_discrete_flags() -> List(tuple(String, Bool)) {
+fn keys_with_discrete_flags() -> List(#(String, Bool)) {
   zlist.indices()
   |> zlist.map(fn(i) {
     let key = string.append("pixel", int.to_string(i))
-    tuple(key, False)
+    #(key, False)
   })
   |> zlist.take(784)
-  |> zlist.cons(tuple("label", True))
+  |> zlist.cons(#("label", True))
   |> zlist.to_list
 }
 
@@ -46,7 +45,7 @@ fn my_preprocessor() -> DataPreprocessor {
 }
 
 fn first_datapoint() -> Map(String, String) {
-  let Next(res, _) = iterator.step(datapoints())
+  assert Next(res, _) = iterator.step(datapoints())
   res
 }
 
@@ -59,12 +58,12 @@ fn first_decoded_datapoint_values() -> List(Float) {
   |> data_preprocessor.decoded_datapoint(first_encoded_datapoint())
   |> map.to_list
   |> list.sort(fn(t1, t2) {
-    let tuple(k1, _) = t1
-    let tuple(k2, _) = t2
+    let #(k1, _) = t1
+    let #(k2, _) = t2
     string.compare(k1, k2)
   })
   |> list.map(fn(t) {
-    let tuple(_, v) = t
+    let #(_, v) = t
     continuous_attribute.parse(v)
   })
 }

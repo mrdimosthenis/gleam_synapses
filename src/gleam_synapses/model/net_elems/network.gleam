@@ -1,8 +1,8 @@
 import gleam/pair
-import decode.{Decoder}
+import gleam/dynamic.{Decoder}
 import gleam_zlists.{ZList} as zlist
 import minigen.{Generator}
-import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
+import gleam/json.{Json}
 import gleam_synapses/model/net_elems/activation.{Activation}
 import gleam_synapses/model/net_elems/neuron.{Neuron}
 import gleam_synapses/model/net_elems/layer.{Layer, LayerSerialized}
@@ -21,11 +21,11 @@ pub fn init(
   activation_f: fn(Int) -> Activation,
   weight_init_f: fn(Int) -> Float,
 ) -> Network {
-  let Ok(tl) = zlist.tail(layer_sizes)
+  assert Ok(tl) = zlist.tail(layer_sizes)
   zlist.zip(layer_sizes, tl)
   |> zlist.with_index
   |> zlist.map(fn(t) {
-    let tuple(tuple(lr_sz, next_lr_sz), index) = t
+    let #(#(lr_sz, next_lr_sz), index) = t
     layer.init(
       lr_sz,
       next_lr_sz,
@@ -42,36 +42,36 @@ pub fn output(network: Network, input_val: ZList(Float)) -> ZList(Float) {
 }
 
 fn fed_forward_acc_f(
-  already_fed: ZList(tuple(ZList(Float), Layer)),
+  already_fed: ZList(#(ZList(Float), Layer)),
   next_layer: Layer,
-) -> ZList(tuple(ZList(Float), Layer)) {
-  let Ok(tuple(errors_val, layer_val)) = zlist.head(already_fed)
+) -> ZList(#(ZList(Float), Layer)) {
+  assert Ok(#(errors_val, layer_val)) = zlist.head(already_fed)
   let next_input = layer.output(layer_val, errors_val)
-  zlist.cons(already_fed, tuple(next_input, next_layer))
+  zlist.cons(already_fed, #(next_input, next_layer))
 }
 
 fn fed_forward(
   network: Network,
   input_val: ZList(Float),
-) -> ZList(tuple(ZList(Float), Layer)) {
-  let Ok(tuple(net_hd, net_tl)) = zlist.uncons(network)
+) -> ZList(#(ZList(Float), Layer)) {
+  assert Ok(#(net_hd, net_tl)) = zlist.uncons(network)
   let init_feed =
-    tuple(input_val, net_hd)
+    #(input_val, net_hd)
     |> zlist.singleton
   zlist.reduce(net_tl, init_feed, fn(x, acc) { fed_forward_acc_f(acc, x) })
 }
 
 fn back_propagated_acc_f(
   learning_rate: Float,
-  errors_with_already_propagated: tuple(ZList(Float), ZList(Layer)),
-  input_with_layer: tuple(ZList(Float), Layer),
-) -> tuple(ZList(Float), ZList(Layer)) {
-  let tuple(errors_val, already_propagated) = errors_with_already_propagated
-  let tuple(last_input, last_layer) = input_with_layer
+  errors_with_already_propagated: #(ZList(Float), ZList(Layer)),
+  input_with_layer: #(ZList(Float), Layer),
+) -> #(ZList(Float), ZList(Layer)) {
+  let #(errors_val, already_propagated) = errors_with_already_propagated
+  let #(last_input, last_layer) = input_with_layer
   let last_output_with_errors =
     layer.output(last_layer, last_input)
     |> zlist.zip(errors_val)
-  let tuple(next_errors, propagated_layer) =
+  let #(next_errors, propagated_layer) =
     layer.back_propagated(
       last_layer,
       learning_rate,
@@ -79,32 +79,32 @@ fn back_propagated_acc_f(
       last_output_with_errors,
     )
   let next_already_propagated = zlist.cons(already_propagated, propagated_layer)
-  tuple(next_errors, next_already_propagated)
+  #(next_errors, next_already_propagated)
 }
 
 fn back_propagated(
   learning_rate: Float,
   expected_output: ZList(Float),
-  reversed_inputs_with_layers: ZList(tuple(ZList(Float), Layer)),
-) -> tuple(ZList(Float), Network) {
-  let Ok(tuple(tuple(last_input, last_layer), reversed_inputs_with_layers_tl)) =
+  reversed_inputs_with_layers: ZList(#(ZList(Float), Layer)),
+) -> #(ZList(Float), Network) {
+  assert Ok(#(#(last_input, last_layer), reversed_inputs_with_layers_tl)) =
     zlist.uncons(reversed_inputs_with_layers)
   let output_val = layer.output(last_layer, last_input)
   let errors_val =
     zlist.zip(output_val, expected_output)
     |> zlist.map(fn(t) {
-      let tuple(a, b) = t
+      let #(a, b) = t
       a -. b
     })
   let output_with_errors = zlist.zip(output_val, errors_val)
-  let tuple(init_errors, first_propagated) =
+  let #(init_errors, first_propagated) =
     layer.back_propagated(
       last_layer,
       learning_rate,
       last_input,
       output_with_errors,
     )
-  let init_acc = tuple(init_errors, zlist.singleton(first_propagated))
+  let init_acc = #(init_errors, zlist.singleton(first_propagated))
   zlist.reduce(
     reversed_inputs_with_layers_tl,
     init_acc,
@@ -117,7 +117,7 @@ fn errors_with_fit_net(
   learning_rate: Float,
   input_val: ZList(Float),
   expected_output: ZList(Float),
-) -> tuple(ZList(Float), Network) {
+) -> #(ZList(Float), Network) {
   back_propagated(
     learning_rate,
     expected_output,
@@ -132,14 +132,14 @@ pub fn errors(
   input_val: ZList(Float),
   expected_output: ZList(Float),
 ) -> ZList(Float) {
-  let Ok(last_layer) =
+  assert Ok(last_layer) =
     network
     |> zlist.reverse
     |> zlist.head
   let restricted_output =
     zlist.zip(last_layer, expected_output)
-    |> zlist.map(fn(t: tuple(Neuron, Float)) {
-      let tuple(a, b) = t
+    |> zlist.map(fn(t: #(Neuron, Float)) {
+      let #(a, b) = t
       activation.restricted_output(a.activation_f, b)
     })
   network
@@ -154,14 +154,14 @@ pub fn fit(
   input_val: ZList(Float),
   expected_output: ZList(Float),
 ) -> Network {
-  let Ok(last_layer) =
+  assert Ok(last_layer) =
     network
     |> zlist.reverse
     |> zlist.head
   let restricted_output =
     zlist.zip(last_layer, expected_output)
-    |> zlist.map(fn(t: tuple(Neuron, Float)) {
-      let tuple(a, b) = t
+    |> zlist.map(fn(t: #(Neuron, Float)) {
+      let #(a, b) = t
       activation.restricted_output(a.activation_f, b)
     })
   network
@@ -185,29 +185,25 @@ fn deserialized(network_serialized: NetworkSerialized) -> Network {
   |> zlist.map(layer.deserialized)
 }
 
-fn json_encoded(network_serialized: NetworkSerialized) -> JsonValue {
-  jsone.array(network_serialized, layer.json_encoded)
+fn json_encoded(network_serialized: NetworkSerialized) -> Json {
+  json.array(network_serialized, layer.json_encoded)
 }
 
 fn json_decoder() -> Decoder(NetworkSerialized) {
-  decode.list(layer.json_decoder())
+  dynamic.list(layer.json_decoder())
 }
 
 // public
 pub fn to_json(network: Network) -> String {
-  let Ok(dyn) =
-    network
+  network
     |> serialized
     |> json_encoded
-    |> jsone.encode
-  let Ok(res) = decode.decode_dynamic(dyn, decode.string())
-  res
+    |> json.to_string
 }
 
 // public
 pub fn of_json(s: String) -> Network {
-  let Ok(dyn) = jsone.decode(s)
-  let Ok(res) = decode.decode_dynamic(dyn, json_decoder())
+  assert Ok(res) = json.decode(s, json_decoder())
   res
   |> deserialized
   |> lazy_realization
@@ -215,12 +211,12 @@ pub fn of_json(s: String) -> Network {
 
 // public
 pub fn generator(layer_sizes: ZList(Int)) -> Generator(Network) {
-  let Ok(tl) = zlist.tail(layer_sizes)
+  assert Ok(tl) = zlist.tail(layer_sizes)
   zlist.zip(layer_sizes, tl)
   |> zlist.reduce(
     minigen.always(zlist.new()),
     fn(t, acc_gen) {
-      let tuple(lr_sz, next_lr_sz) = t
+      let #(lr_sz, next_lr_sz) = t
       minigen.then(
         acc_gen,
         fn(acc_zls) {

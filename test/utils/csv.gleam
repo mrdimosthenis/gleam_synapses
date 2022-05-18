@@ -18,7 +18,7 @@ fn hmap(headers: List(String), line: String) -> Map(String, String) {
 }
 
 pub fn iterator_of_hmaps(s: String) -> Iterator(Map(String, String)) {
-  let tuple([first_line], rest_lines) =
+  let #([first_line], rest_lines) =
     s
     |> lines
     |> list.split(1)

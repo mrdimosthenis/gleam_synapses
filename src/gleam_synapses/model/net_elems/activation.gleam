@@ -1,7 +1,7 @@
 import gleam/float
-import decode.{Decoder}
+import gleam/dynamic.{Decoder}
+import gleam/json.{Json}
 import minigen.{Generator}
-import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
 
 pub external fn math_exp(x: Float) -> Float =
   "math" "exp"
@@ -18,17 +18,17 @@ pub type Activation {
     f: fn(Float) -> Float,
     deriv: fn(Float) -> Float,
     inverse: fn(Float) -> Float,
-    min_max_in_vals: tuple(Float, Float),
+    min_max_in_vals: #(Float, Float),
   )
 }
 
 pub fn restricted_input(activation: Activation, x: Float) -> Float {
-  let tuple(min, max) = activation.min_max_in_vals
+  let #(min, max) = activation.min_max_in_vals
   float.clamp(x, min, max)
 }
 
 pub fn restricted_output(activation: Activation, y: Float) -> Float {
-  let tuple(min, max) = activation.min_max_in_vals
+  let #(min, max) = activation.min_max_in_vals
   float.clamp(y, activation.f(min), activation.f(max))
 }
 
@@ -53,7 +53,7 @@ pub fn sigmoid() -> Activation {
       y /. { 1.0 -. y }
       |> math_log
     },
-    min_max_in_vals: tuple(-700.0, 20.0),
+    min_max_in_vals: #(-700.0, 20.0),
   )
 }
 
@@ -63,7 +63,7 @@ pub fn identity() -> Activation {
     f: fn(x) { x },
     deriv: fn(_) { 1.0 },
     inverse: fn(y) { y },
-    min_max_in_vals: tuple(min_abs_float(False), min_abs_float(True)),
+    min_max_in_vals: #(min_abs_float(False), min_abs_float(True)),
   )
 }
 
@@ -73,7 +73,7 @@ pub fn tanh() -> Activation {
     f: math_tanh,
     deriv: fn(d) { 1.0 -. math_tanh(d) *. math_tanh(d) },
     inverse: fn(y) { 0.5 *. math_log({ 1.0 +. y } /. { 1.0 -. y }) },
-    min_max_in_vals: tuple(-10.0, 10.0),
+    min_max_in_vals: #(-10.0, 10.0),
   )
 }
 
@@ -98,7 +98,7 @@ pub fn leaky_re_lu() -> Activation {
         False -> y
       }
     },
-    min_max_in_vals: tuple(min_abs_float(False), min_abs_float(True)),
+    min_max_in_vals: #(min_abs_float(False), min_abs_float(True)),
   )
 }
 
@@ -118,12 +118,12 @@ pub fn deserialized(activation_serialised: ActivationSerialized) -> Activation {
   }
 }
 
-pub fn json_encoded(activation_serialised: ActivationSerialized) -> JsonValue {
-  jsone.string(activation_serialised)
+pub fn json_encoded(activation_serialised: ActivationSerialized) -> Json {
+  json.string(activation_serialised)
 }
 
 pub fn json_decoder() -> Decoder(ActivationSerialized) {
-  decode.string()
+  dynamic.string
 }
 
 pub fn generator() -> Generator(Activation) {

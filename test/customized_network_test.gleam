@@ -1,7 +1,6 @@
-import gleam/should
+import gleeunit/should
 import minigen
 import utils/large_values
-import gleam_synapses/model/net_elems/network
 import gleam_synapses/activation_function.{ActivationFunction}
 import gleam_synapses/neural_network.{NeuralNetwork}
 

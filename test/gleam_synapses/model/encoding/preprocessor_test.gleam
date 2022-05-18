@@ -1,11 +1,11 @@
 import gleam/map.{Map}
 import gleam_zlists.{ZList} as zlist
-import gleam/should
+import gleeunit/should
 import gleam_synapses/model/encoding/preprocessor
 import gleam_synapses/model/encoding/serialization.{Preprocessor}
 
 fn datapoint_1() -> Map(String, String) {
-  [tuple("a", "a1"), tuple("b", "b1"), tuple("c", "-8.0"), tuple("d", "3")]
+  [#("a", "a1"), #("b", "b1"), #("c", "-8.0"), #("d", "3")]
   |> map.from_list
 }
 
@@ -36,8 +36,8 @@ fn dataset() -> ZList(Map(String, String)) {
   |> zlist.of_list
 }
 
-fn keys_with_flags() -> ZList(tuple(String, Bool)) {
-  [tuple("a", True), tuple("b", True), tuple("c", False), tuple("d", False)]
+fn keys_with_flags() -> ZList(#(String, Bool)) {
+  [#("a", True), #("b", True), #("c", False), #("d", False)]
   |> zlist.of_list
 }
 
@@ -73,36 +73,11 @@ pub fn decode_dataset_test() {
   decoded_dataset()
   |> zlist.to_list
   |> should.equal([
-    map.from_list([
-      tuple("a", "a1"),
-      tuple("b", "b1"),
-      tuple("c", "-8.0"),
-      tuple("d", "3.0"),
-    ]),
-    map.from_list([
-      tuple("a", "a1"),
-      tuple("b", "b2"),
-      tuple("c", "-8.0"),
-      tuple("d", "3.0"),
-    ]),
-    map.from_list([
-      tuple("a", "a1"),
-      tuple("b", "b3"),
-      tuple("c", "-8.0"),
-      tuple("d", "3.0"),
-    ]),
-    map.from_list([
-      tuple("a", "a1"),
-      tuple("b", "b4"),
-      tuple("c", "-8.0"),
-      tuple("d", "5.0"),
-    ]),
-    map.from_list([
-      tuple("a", "a1"),
-      tuple("b", "b5"),
-      tuple("c", "-8.0"),
-      tuple("d", "4.0"),
-    ]),
+    map.from_list([#("a", "a1"), #("b", "b1"), #("c", "-8.0"), #("d", "3.0")]),
+    map.from_list([#("a", "a1"), #("b", "b2"), #("c", "-8.0"), #("d", "3.0")]),
+    map.from_list([#("a", "a1"), #("b", "b3"), #("c", "-8.0"), #("d", "3.0")]),
+    map.from_list([#("a", "a1"), #("b", "b4"), #("c", "-8.0"), #("d", "5.0")]),
+    map.from_list([#("a", "a1"), #("b", "b5"), #("c", "-8.0"), #("d", "4.0")]),
   ])
 }
 

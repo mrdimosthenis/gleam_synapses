@@ -26,7 +26,7 @@ fn fail_if_input_not_match(
   input_values: List(Float),
 ) -> Nil {
   let num_of_input_vals = list.length(input_values)
-  let Ok(first_neuron) =
+  assert Ok(first_neuron) =
     network
     |> zlist.head
     |> result.then(zlist.head)
@@ -42,7 +42,7 @@ fn fail_if_expected_not_match(
   expected_output: List(Float),
 ) -> Nil {
   let num_of_expected_vals = list.length(expected_output)
-  let Ok(output_layer_size) =
+  assert Ok(output_layer_size) =
     network
     |> zlist.reverse
     |> zlist.head

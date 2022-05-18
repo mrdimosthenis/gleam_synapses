@@ -1,7 +1,7 @@
-import decode.{Decoder}
+import gleam/dynamic.{Decoder}
 import gleam_zlists.{ZList} as zlist
 import minigen.{Generator}
-import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
+import gleam/json.{Json}
 import gleam_synapses/model/mathematics as maths
 import gleam_synapses/model/net_elems/activation.{
   Activation, ActivationSerialized,
@@ -38,9 +38,9 @@ pub fn back_propagated(
   neuron: Neuron,
   learning_rate: Float,
   input_val: ZList(Float),
-  output_with_error: tuple(Float, Float),
-) -> tuple(ZList(Float), Neuron) {
-  let tuple(output_val, error) = output_with_error
+  output_with_error: #(Float, Float),
+) -> #(ZList(Float), Neuron) {
+  let #(output_val, error) = output_with_error
   let output_inverse = neuron.activation_f.inverse(output_val)
   let common = error *. neuron.activation_f.deriv(output_inverse)
   let in_errors = zlist.map(input_val, fn(x) { x *. common })
@@ -49,11 +49,11 @@ pub fn back_propagated(
     |> zlist.cons(1.0)
     |> zlist.zip(neuron.weights)
     |> zlist.map(fn(x) {
-      let tuple(a, b) = x
+      let #(a, b) = x
       b -. learning_rate *. common *. a
     })
   let new_neuron = Neuron(neuron.activation_f, new_weights)
-  tuple(in_errors, new_neuron)
+  #(in_errors, new_neuron)
 }
 
 pub type NeuronSerialized {
@@ -74,21 +74,18 @@ pub fn deserialized(neuron_serialized: NeuronSerialized) -> Neuron {
   )
 }
 
-pub fn json_encoded(neuron_serialized: NeuronSerialized) -> JsonValue {
-  jsone.object([
-    tuple(
-      "activationF",
-      activation.json_encoded(neuron_serialized.activation_f),
-    ),
-    tuple("weights", jsone.array(neuron_serialized.weights, jsone.float)),
+pub fn json_encoded(neuron_serialized: NeuronSerialized) -> Json {
+  json.object([
+    #("activationF", activation.json_encoded(neuron_serialized.activation_f)),
+    #("weights", json.array(neuron_serialized.weights, json.float)),
   ])
 }
 
 pub fn json_decoder() -> Decoder(NeuronSerialized) {
-  decode.map2(
+  dynamic.decode2(
     NeuronSerialized,
-    decode.field("activationF", activation.json_decoder()),
-    decode.field("weights", decode.list(decode.float())),
+    dynamic.field("activationF", activation.json_decoder()),
+    dynamic.field("weights", dynamic.list(dynamic.float)),
   )
 }
 

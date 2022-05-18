@@ -1,7 +1,7 @@
-import decode.{Decoder}
+import gleam/dynamic.{Decoder}
 import gleam_zlists.{ZList} as zlist
 import minigen.{Generator}
-import gleam_synapses/model/edited_jsone.{JsonValue} as jsone
+import gleam/json.{Json}
 import gleam_synapses/model/net_elems/activation.{Activation}
 import gleam_synapses/model/net_elems/neuron.{Neuron, NeuronSerialized}
 
@@ -27,12 +27,12 @@ pub fn back_propagated(
   layer: Layer,
   learning_rate: Float,
   input_val: ZList(Float),
-  output_with_error: ZList(tuple(Float, Float)),
-) -> tuple(ZList(Float), Layer) {
-  let tuple(errors_multi, new_layer) =
+  output_with_error: ZList(#(Float, Float)),
+) -> #(ZList(Float), Layer) {
+  let #(errors_multi, new_layer) =
     zlist.zip(output_with_error, layer)
     |> zlist.map(fn(t) {
-      let tuple(a, b) = t
+      let #(a, b) = t
       neuron.back_propagated(b, learning_rate, input_val, a)
     })
     |> zlist.unzip
@@ -44,12 +44,12 @@ pub fn back_propagated(
       fn(x, acc) {
         zlist.zip(acc, x)
         |> zlist.map(fn(t) {
-          let tuple(a, b) = t
+          let #(a, b) = t
           a +. b
         })
       },
     )
-  tuple(errors, new_layer)
+  #(errors, new_layer)
 }
 
 pub type LayerSerialized =
@@ -67,12 +67,12 @@ pub fn deserialized(layer_serialized: LayerSerialized) -> Layer {
   |> zlist.map(neuron.deserialized)
 }
 
-pub fn json_encoded(layer_serialized: LayerSerialized) -> JsonValue {
-  jsone.array(layer_serialized, neuron.json_encoded)
+pub fn json_encoded(layer_serialized: LayerSerialized) -> Json {
+  json.array(layer_serialized, neuron.json_encoded)
 }
 
 pub fn json_decoder() -> Decoder(LayerSerialized) {
-  decode.list(neuron.json_decoder())
+  dynamic.list(neuron.json_decoder())
 }
 
 pub fn generator(input_size: Int, output_size: Int) -> Generator(Layer) {

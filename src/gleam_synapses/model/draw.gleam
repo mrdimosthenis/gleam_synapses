@@ -4,7 +4,6 @@ import gleam/string
 import gleam/option.{None, Some}
 import gleam/result
 import gleam_zlists.{ZList} as zlist
-import gleam_synapses/model/net_elems/activation
 import gleam_synapses/model/net_elems/neuron.{Neuron}
 import gleam_synapses/model/net_elems/layer.{Layer}
 import gleam_synapses/model/net_elems/network.{Network}
@@ -131,7 +130,7 @@ fn output_circles_svgs(
   output_activations
   |> zlist.with_index
   |> zlist.map(fn(t) {
-    let tuple(activ, i) = t
+    let #(activ, i) = t
     circle_svg(
       circle_cx(output_chain_order),
       circle_cy(max_chain_circles, num_of_activations, i),
@@ -151,7 +150,7 @@ fn hidden_circles_svgs(
   |> zlist.cons(None)
   |> zlist.with_index
   |> zlist.map(fn(t) {
-    let tuple(maybe_activ, i) = t
+    let #(maybe_activ, i) = t
     let stroke_val = case maybe_activ {
       Some(activ) -> activation_name_to_stroke(activ)
       None -> bias_circle_stroke
@@ -171,7 +170,7 @@ fn layer_circles_svgs(
   layer_val: Layer,
 ) -> ZList(String) {
   let is_last_layer = layer_order == num_of_layers - 1
-  let Ok(prev_layer_size) =
+  assert Ok(prev_layer_size) =
     layer_val
     |> zlist.head
     |> result.map(fn(neuron_val: Neuron) { zlist.count(neuron_val.weights) })
@@ -269,7 +268,7 @@ fn neuron_lines_svgs(
   weights
   |> zlist.with_index
   |> zlist.map(fn(t) {
-    let tuple(w, i) = t
+    let #(w, i) = t
     line_svg(
       max_chain_circles,
       layer_order,
@@ -293,8 +292,8 @@ fn layer_lines_svgs(
   let num_of_neurons = zlist.count(layer_val)
   layer_val
   |> zlist.with_index
-  |> zlist.flat_map(fn(t: tuple(Neuron, Int)) {
-    let tuple(neuron, i) = t
+  |> zlist.flat_map(fn(t: #(Neuron, Int)) {
+    let #(neuron, i) = t
     neuron_lines_svgs(
       max_chain_circles,
       num_of_neurons,
@@ -309,11 +308,11 @@ fn layer_lines_svgs(
 
 pub fn network_svg(network_val: Network) -> String {
   let num_of_layers = zlist.count(network_val)
-  let Ok(max_chain_circles_float) =
+  assert Ok(max_chain_circles_float) =
     network_val
     |> zlist.with_index
-    |> zlist.map(fn(t: tuple(Layer, Int)) {
-      let tuple(layer_val, i) = t
+    |> zlist.map(fn(t: #(Layer, Int)) {
+      let #(layer_val, i) = t
       case i == num_of_layers - 1 {
         True -> zlist.count(layer_val) + 1
         False -> zlist.count(layer_val)
@@ -322,7 +321,7 @@ pub fn network_svg(network_val: Network) -> String {
     |> zlist.map(int.to_float)
     |> zlist.max
   let max_chain_circles = float.round(max_chain_circles_float)
-  let Ok(max_abs_weight) =
+  assert Ok(max_abs_weight) =
     network_val
     |> zlist.flat_map(fn(layer_val) {
       zlist.flat_map(
@@ -337,14 +336,14 @@ pub fn network_svg(network_val: Network) -> String {
     network_val
     |> zlist.with_index
     |> zlist.flat_map(fn(t) {
-      let tuple(layer_val, i) = t
+      let #(layer_val, i) = t
       layer_circles_svgs(max_chain_circles, i, num_of_layers, layer_val)
     })
   let lines_svgs =
     network_val
     |> zlist.with_index
     |> zlist.flat_map(fn(t) {
-      let tuple(layer_val, i) = t
+      let #(layer_val, i) = t
       layer_lines_svgs(
         max_chain_circles,
         i,
