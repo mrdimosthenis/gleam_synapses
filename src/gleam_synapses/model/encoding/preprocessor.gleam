@@ -195,9 +195,9 @@ fn json_decoder() -> Decoder(PreprocessorSerialized) {
 // public
 pub fn to_json(preprocessor: Preprocessor) -> String {
   preprocessor
-    |> serialized
-    |> json_encoded
-    |> json.to_string
+  |> serialized
+  |> json_encoded
+  |> json.to_string
 }
 
 // public

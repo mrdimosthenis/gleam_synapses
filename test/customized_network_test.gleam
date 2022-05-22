@@ -66,12 +66,7 @@ pub fn neural_network_prediction_test() {
 }
 
 pub fn neural_network_normal_errors_test() {
-  net.errors(
-    my_neural_network(),
-    input_values(),
-    expected_output(),
-    True,
-  )
+  net.errors(my_neural_network(), input_values(), expected_output(), True)
   |> should.equal([
     -0.18229373795952453, -0.10254022760223255, -0.09317233470223055, -0.086806455078946,
   ])

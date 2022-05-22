@@ -4,7 +4,6 @@ import gleam/json.{Json}
 import gleam_synapses/model/net_elems/layer/layer_serialized.{LayerSerialized}
 import gleam_synapses/model/net_elems/network/network.{Network}
 
-
 type NetworkSerialized =
   List(LayerSerialized)
 

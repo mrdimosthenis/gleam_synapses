@@ -63,14 +63,14 @@ pub fn serialized(discrete_attribute: Attribute) -> AttributeSerialized {
 pub fn deserialized(
   discrete_attribute_serialized: AttributeSerialized,
 ) -> Attribute {
-  assert DiscreteAttributeSerialized(key, values) = discrete_attribute_serialized
+  assert DiscreteAttributeSerialized(key, values) =
+    discrete_attribute_serialized
   DiscreteAttribute(key, zlist.of_list(values))
 }
 
-pub fn json_encoded(
-  discrete_attribute_serialized: AttributeSerialized,
-) -> Json {
-  assert DiscreteAttributeSerialized(key, values) = discrete_attribute_serialized
+pub fn json_encoded(discrete_attribute_serialized: AttributeSerialized) -> Json {
+  assert DiscreteAttributeSerialized(key, values) =
+    discrete_attribute_serialized
   json.object([
     #("key", json.string(key)),
     #("values", json.array(values, json.string)),

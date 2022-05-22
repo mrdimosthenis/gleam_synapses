@@ -25,12 +25,7 @@ fn expected_output() -> List(Float) {
 }
 
 fn my_fit_network() -> Net {
-  net.fit(
-    my_neural_network(),
-    learning_rate,
-    input_values(),
-    expected_output(),
-  )
+  net.fit(my_neural_network(), learning_rate, input_values(), expected_output())
 }
 
 pub fn neural_network_to_json_test() {
@@ -45,24 +40,14 @@ pub fn neural_network_prediction_test() {
 }
 
 pub fn neural_network_normal_errors_test() {
-  net.errors(
-    my_neural_network(),
-    input_values(),
-    expected_output(),
-    False,
-  )
+  net.errors(my_neural_network(), input_values(), expected_output(), False)
   |> should.equal([
     0.07624623311148832, 0.042888506125212174, 0.0389702884518459, 0.036307693745359616,
   ])
 }
 
 pub fn neural_network_zero_errors_test() {
-  net.errors(
-    my_neural_network(),
-    input_values(),
-    prediction(),
-    False,
-  )
+  net.errors(my_neural_network(), input_values(), prediction(), False)
   |> should.equal([0.0, 0.0, 0.0, 0.0])
 }
 

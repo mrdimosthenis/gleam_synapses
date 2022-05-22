@@ -26,7 +26,10 @@ pub fn deserialized(neuron_serialized: NeuronSerialized) -> Neuron {
 
 pub fn json_encoded(neuron_serialized: NeuronSerialized) -> Json {
   json.object([
-    #("activationF", activation_serialized.json_encoded(neuron_serialized.activation_f)),
+    #(
+      "activationF",
+      activation_serialized.json_encoded(neuron_serialized.activation_f),
+    ),
     #("weights", json.array(neuron_serialized.weights, json.float)),
   ])
 }

@@ -178,7 +178,9 @@ fn layer_circles_svgs(
   let activations =
     zlist.map(
       layer_val,
-      fn(neuron_val: Neuron) { activation_serialized.serialized(neuron_val.activation_f) },
+      fn(neuron_val: Neuron) {
+        activation_serialized.serialized(neuron_val.activation_f)
+      },
     )
   let input_circles = case layer_order == 0 {
     True -> input_circles_svgs(max_chain_circles, prev_layer_size)
