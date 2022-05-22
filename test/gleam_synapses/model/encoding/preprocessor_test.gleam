@@ -81,7 +81,7 @@ pub fn decode_dataset_test() {
   ])
 }
 
-const json: String = "[{\"Case\":\"SerializableDiscrete\",\"Fields\":[{\"key\":\"a\",\"values\":[\"a1\"]}]},{\"Case\":\"SerializableDiscrete\",\"Fields\":[{\"key\":\"b\",\"values\":[\"b5\",\"b4\",\"b3\",\"b2\",\"b1\"]}]},{\"Case\":\"SerializableContinuous\",\"Fields\":[{\"key\":\"c\",\"max\":-8.0,\"min\":-8.0}]},{\"Case\":\"SerializableContinuous\",\"Fields\":[{\"key\":\"d\",\"max\":5.0,\"min\":3.0}]}]"
+const json: String = "[{\"Case\":\"SerializableDiscrete\",\"Fields\":[{\"key\":\"a\",\"values\":[\"a1\"]}]},{\"Case\":\"SerializableDiscrete\",\"Fields\":[{\"key\":\"b\",\"values\":[\"b5\",\"b4\",\"b3\",\"b2\",\"b1\"]}]},{\"Case\":\"SerializableContinuous\",\"Fields\":[{\"key\":\"c\",\"min\":-8.0,\"max\":-8.0}]},{\"Case\":\"SerializableContinuous\",\"Fields\":[{\"key\":\"d\",\"min\":3.0,\"max\":5.0}]}]"
 
 pub fn preprocessor_to_json_test() {
   my_preprocessor()

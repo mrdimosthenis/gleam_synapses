@@ -16,7 +16,7 @@ Add `gleam_synapses` to your `rebar.config` dependencies:
 
 ## Import statements
 
-```rust
+```gleam
 import gleam_synapses/activation_function
 import gleam_synapses/neural_network
 import gleam_synapses/data_preprocessor
@@ -36,7 +36,7 @@ These are the four modules you are going to need:
 
 Call [neural_network.init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#init) and provide the size of each _layer_.
 
-```rust
+```gleam
 let layers = [4, 6, 5, 3]
 let sigmoid_network = neural_network.init(layers)
 ```
@@ -46,7 +46,7 @@ There are 2 hidden layers with 6 and 5 neurons respectively.
 
 ### Get a prediction
 
-```rust
+```gleam
 let input_values = [1.0, 0.5625, 0.511111, 0.47619]
 let prediction = neural_network.prediction(sigmoid_network, input_values)
 ```
@@ -57,7 +57,7 @@ _Note that the lengths of input_values and prediction equal to the sizes of inpu
 
 ### Fit network
 
-```rust
+```gleam
 let learning_rate = 0.5
 let expected_output = [0.0, 1.0, 0.0]
 
@@ -72,7 +72,7 @@ let fit_network =
 The _activation function_ of the neurons created with [neural_network.init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#init), is a sigmoid one.
 If you want to customize the _activation functions_ and the _weight distribution_, call [neural_network.customized_init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#customized_init).
 
-```rust
+```gleam
 let activation_f = fn(layer_index) {
   case layer_index {
     0 -> activation_function.sigmoid()
@@ -101,7 +101,7 @@ let my_network =
 
 Call [neural_network.to_svg](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#to_svg) to take a brief look at its _svg drawing_.
 
-```rust
+```gleam
 let svg = neural_network.to_svg(my_network)
 ```
 
@@ -117,13 +117,13 @@ while the transparency of the synapses depends on their _weight_.
 Call [neural_network.to_json](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#to_json) on a neural network and get a string representation of it.
 Use it as you like. Save `json` in the file system or insert it into a database table.
 
-```rust
+```gleam
 let json = neural_network.to_json(my_network)
 ```
 
 ### of_json
 
-```rust
+```gleam
 let neural_network = neural_network.of_json(json)
 ```
 
@@ -137,7 +137,7 @@ You can use `data_preprocessor` for datapoint encoding and decoding.
 
 The first parameter of [data_preprocessor.init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/data_preprocessor/#init) is a list of tuples _(attribute_name, discrete_or_not)_.
 
-```rust
+```gleam
 let setosa_datapoint =
   [
     #("petal_length", "1.5"),
@@ -193,7 +193,7 @@ let encoded_datapoints =
 
 `encoded_datapoints` should be
 
-```rust
+```gleam
 [ [ 0.0     , 0.0     , 0.0     , 1.0     , 0.0, 0.0, 1.0 ],
   [ 0.511111, 0.476190, 1.0     , 0.562500, 0.0, 1.0, 0.0 ],
   [ 1.0     , 1.0     , 0.166667, 0.0     , 1.0, 0.0, 0.0 ] ]
@@ -205,7 +205,7 @@ Save and load the preprocessor by calling [data_preprocessor.to_json](https://he
 
 To evaluate a neural network, you can call [statistics.root_mean_square_error](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/statistics/#root_mean_square_error) and provide the expected and predicted values.
 
-```rust
+```gleam
 let expected_with_output_values =
   [
     #([0.0, 0.0, 1.0], [0.0, 0.0, 1.0]),

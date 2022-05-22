@@ -2,6 +2,15 @@ import gleam/float
 import gleam/int
 import gleam_zlists.{ZList} as zlist
 
+pub external fn exp(x: Float) -> Float =
+  "math" "exp"
+
+pub external fn log(x: Float) -> Float =
+  "math" "log"
+
+pub external fn tanh(x: Float) -> Float =
+  "math" "tanh"
+
 pub fn dot_product(left: ZList(Float), right: ZList(Float)) -> Float {
   zlist.zip(left, right)
   |> zlist.map(fn(x) {

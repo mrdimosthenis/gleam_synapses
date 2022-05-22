@@ -1,20 +1,20 @@
-import gleam_synapses/model/net_elems/activation
+import gleam_synapses/model/net_elems/activation/activation
 
 pub type ActivationFunction =
   activation.Activation
 
 pub fn sigmoid() -> ActivationFunction {
-  activation.sigmoid()
+  activation.Sigmoid
 }
 
 pub fn identity() -> ActivationFunction {
-  activation.identity()
+  activation.Identity
 }
 
 pub fn tanh() -> ActivationFunction {
-  activation.tanh()
+  activation.Tanh
 }
 
 pub fn leaky_re_lu() -> ActivationFunction {
-  activation.leaky_re_lu()
+  activation.LeakyReLU
 }

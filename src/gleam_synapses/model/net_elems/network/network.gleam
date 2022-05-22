@@ -1,21 +1,12 @@
 import gleam/pair
-import gleam/dynamic.{Decoder}
 import gleam_zlists.{ZList} as zlist
 import minigen.{Generator}
-import gleam/json.{Json}
-import gleam_synapses/model/net_elems/activation.{Activation}
-import gleam_synapses/model/net_elems/neuron.{Neuron}
-import gleam_synapses/model/net_elems/layer.{Layer, LayerSerialized}
+import gleam_synapses/model/net_elems/activation/activation.{Activation}
+import gleam_synapses/model/net_elems/layer/layer.{Layer}
 
 pub type Network =
   ZList(Layer)
 
-fn lazy_realization(network: Network) -> Network {
-  serialized(network)
-  network
-}
-
-// public
 pub fn init(
   layer_sizes: ZList(Int),
   activation_f: fn(Int) -> Activation,
@@ -33,43 +24,56 @@ pub fn init(
       fn() { fn() { weight_init_f(index) } },
     )
   })
-  |> lazy_realization
 }
 
-// public
-pub fn output(network: Network, input_val: ZList(Float)) -> ZList(Float) {
-  zlist.reduce(network, input_val, fn(x, acc) { layer.output(x, acc) })
+pub fn output(
+  network: Network,
+  input_val: ZList(Float),
+  in_parallel: Bool,
+) -> ZList(Float) {
+  zlist.reduce(
+    network,
+    input_val,
+    fn(x, acc) { layer.output(x, acc, in_parallel) },
+  )
 }
 
 fn fed_forward_acc_f(
   already_fed: ZList(#(ZList(Float), Layer)),
   next_layer: Layer,
+  in_parallel: Bool,
 ) -> ZList(#(ZList(Float), Layer)) {
   assert Ok(#(errors_val, layer_val)) = zlist.head(already_fed)
-  let next_input = layer.output(layer_val, errors_val)
+  let next_input = layer.output(layer_val, errors_val, in_parallel)
   zlist.cons(already_fed, #(next_input, next_layer))
 }
 
 fn fed_forward(
   network: Network,
   input_val: ZList(Float),
+  in_parallel: Bool,
 ) -> ZList(#(ZList(Float), Layer)) {
   assert Ok(#(net_hd, net_tl)) = zlist.uncons(network)
   let init_feed =
     #(input_val, net_hd)
     |> zlist.singleton
-  zlist.reduce(net_tl, init_feed, fn(x, acc) { fed_forward_acc_f(acc, x) })
+  zlist.reduce(
+    net_tl,
+    init_feed,
+    fn(x, acc) { fed_forward_acc_f(acc, x, in_parallel) },
+  )
 }
 
 fn back_propagated_acc_f(
   learning_rate: Float,
   errors_with_already_propagated: #(ZList(Float), ZList(Layer)),
   input_with_layer: #(ZList(Float), Layer),
+  in_parallel: Bool,
 ) -> #(ZList(Float), ZList(Layer)) {
   let #(errors_val, already_propagated) = errors_with_already_propagated
   let #(last_input, last_layer) = input_with_layer
   let last_output_with_errors =
-    layer.output(last_layer, last_input)
+    layer.output(last_layer, last_input, in_parallel)
     |> zlist.zip(errors_val)
   let #(next_errors, propagated_layer) =
     layer.back_propagated(
@@ -77,6 +81,7 @@ fn back_propagated_acc_f(
       learning_rate,
       last_input,
       last_output_with_errors,
+      in_parallel,
     )
   let next_already_propagated = zlist.cons(already_propagated, propagated_layer)
   #(next_errors, next_already_propagated)
@@ -86,10 +91,11 @@ fn back_propagated(
   learning_rate: Float,
   expected_output: ZList(Float),
   reversed_inputs_with_layers: ZList(#(ZList(Float), Layer)),
+  in_parallel: Bool,
 ) -> #(ZList(Float), Network) {
   assert Ok(#(#(last_input, last_layer), reversed_inputs_with_layers_tl)) =
     zlist.uncons(reversed_inputs_with_layers)
-  let output_val = layer.output(last_layer, last_input)
+  let output_val = layer.output(last_layer, last_input, in_parallel)
   let errors_val =
     zlist.zip(output_val, expected_output)
     |> zlist.map(fn(t) {
@@ -103,113 +109,41 @@ fn back_propagated(
       learning_rate,
       last_input,
       output_with_errors,
+      in_parallel,
     )
   let init_acc = #(init_errors, zlist.singleton(first_propagated))
   zlist.reduce(
     reversed_inputs_with_layers_tl,
     init_acc,
-    fn(x, acc) { back_propagated_acc_f(learning_rate, acc, x) },
+    fn(x, acc) { back_propagated_acc_f(learning_rate, acc, x, in_parallel) },
   )
 }
 
-fn errors_with_fit_net(
-  network: Network,
-  learning_rate: Float,
-  input_val: ZList(Float),
-  expected_output: ZList(Float),
-) -> #(ZList(Float), Network) {
-  back_propagated(
-    learning_rate,
-    expected_output,
-    fed_forward(network, input_val),
-  )
-}
-
-// public
 pub fn errors(
   network: Network,
-  learning_rate: Float,
   input_val: ZList(Float),
   expected_output: ZList(Float),
+  in_parallel: Bool,
 ) -> ZList(Float) {
-  assert Ok(last_layer) =
-    network
-    |> zlist.reverse
-    |> zlist.head
-  let restricted_output =
-    zlist.zip(last_layer, expected_output)
-    |> zlist.map(fn(t: #(Neuron, Float)) {
-      let #(a, b) = t
-      activation.restricted_output(a.activation_f, b)
-    })
   network
-  |> errors_with_fit_net(learning_rate, input_val, restricted_output)
+  |> fed_forward(input_val, in_parallel)
+  |> back_propagated(0.0, expected_output, _, in_parallel)
   |> pair.first
 }
 
-// public
 pub fn fit(
   network: Network,
   learning_rate: Float,
   input_val: ZList(Float),
   expected_output: ZList(Float),
+  in_parallel: Bool,
 ) -> Network {
-  assert Ok(last_layer) =
-    network
-    |> zlist.reverse
-    |> zlist.head
-  let restricted_output =
-    zlist.zip(last_layer, expected_output)
-    |> zlist.map(fn(t: #(Neuron, Float)) {
-      let #(a, b) = t
-      activation.restricted_output(a.activation_f, b)
-    })
   network
-  |> errors_with_fit_net(learning_rate, input_val, restricted_output)
+  |> fed_forward(input_val, in_parallel)
+  |> back_propagated(learning_rate, expected_output, _, in_parallel)
   |> pair.second
-  |> lazy_realization
 }
 
-type NetworkSerialized =
-  List(LayerSerialized)
-
-fn serialized(network: Network) -> NetworkSerialized {
-  network
-  |> zlist.map(layer.serialized)
-  |> zlist.to_list
-}
-
-fn deserialized(network_serialized: NetworkSerialized) -> Network {
-  network_serialized
-  |> zlist.of_list
-  |> zlist.map(layer.deserialized)
-}
-
-fn json_encoded(network_serialized: NetworkSerialized) -> Json {
-  json.array(network_serialized, layer.json_encoded)
-}
-
-fn json_decoder() -> Decoder(NetworkSerialized) {
-  dynamic.list(layer.json_decoder())
-}
-
-// public
-pub fn to_json(network: Network) -> String {
-  network
-    |> serialized
-    |> json_encoded
-    |> json.to_string
-}
-
-// public
-pub fn of_json(s: String) -> Network {
-  assert Ok(res) = json.decode(s, json_decoder())
-  res
-  |> deserialized
-  |> lazy_realization
-}
-
-// public
 pub fn generator(layer_sizes: ZList(Int)) -> Generator(Network) {
   assert Ok(tl) = zlist.tail(layer_sizes)
   zlist.zip(layer_sizes, tl)
@@ -227,5 +161,4 @@ pub fn generator(layer_sizes: ZList(Int)) -> Generator(Network) {
     },
   )
   |> minigen.map(zlist.reverse)
-  |> minigen.map(lazy_realization)
 }

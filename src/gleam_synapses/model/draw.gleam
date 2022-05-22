@@ -4,9 +4,10 @@ import gleam/string
 import gleam/option.{None, Some}
 import gleam/result
 import gleam_zlists.{ZList} as zlist
-import gleam_synapses/model/net_elems/neuron.{Neuron}
-import gleam_synapses/model/net_elems/layer.{Layer}
-import gleam_synapses/model/net_elems/network.{Network}
+import gleam_synapses/model/net_elems/activation/activation_serialized
+import gleam_synapses/model/net_elems/neuron/neuron.{Neuron}
+import gleam_synapses/model/net_elems/layer/layer.{Layer}
+import gleam_synapses/model/net_elems/network/network.{Network}
 
 const pixels: Float = 400.0
 
@@ -177,7 +178,7 @@ fn layer_circles_svgs(
   let activations =
     zlist.map(
       layer_val,
-      fn(neuron_val: Neuron) { neuron_val.activation_f.name },
+      fn(neuron_val: Neuron) { activation_serialized.serialized(neuron_val.activation_f) },
     )
   let input_circles = case layer_order == 0 {
     True -> input_circles_svgs(max_chain_circles, prev_layer_size)

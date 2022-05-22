@@ -2,10 +2,10 @@ import gleeunit/should
 import minigen
 import utils/large_values
 import gleam_synapses/activation_function.{ActivationFunction}
-import gleam_synapses/neural_network.{NeuralNetwork}
+import gleam_synapses/net.{Net}
 
-fn my_neural_network() -> NeuralNetwork {
-  neural_network.of_json(large_values.customized_neural_network_json)
+fn my_neural_network() -> Net {
+  net.from_json(large_values.customized_neural_network_json)
 }
 
 fn input_values() -> List(Float) {
@@ -17,13 +17,13 @@ fn expected_output() -> List(Float) {
 }
 
 fn prediction() -> List(Float) {
-  neural_network.prediction(my_neural_network(), input_values())
+  net.par_predict(my_neural_network(), input_values())
 }
 
 const learning_rate = 0.01
 
-fn my_fit_network() -> NeuralNetwork {
-  neural_network.fit(
+fn my_fit_network() -> Net {
+  net.par_fit(
     my_neural_network(),
     learning_rate,
     input_values(),
@@ -32,14 +32,14 @@ fn my_fit_network() -> NeuralNetwork {
 }
 
 pub fn neural_network_of_to_json_test() {
-  let layers = fn() -> List(Int) { [4, 6, 5, 3] }
+  let layers = fn() -> List(Int) { [4, 6, 8, 5, 3] }
 
   let activation_f = fn(layer_index: Int) -> ActivationFunction {
     case layer_index {
       0 -> activation_function.sigmoid()
       1 -> activation_function.identity()
       2 -> activation_function.leaky_re_lu()
-      _ -> activation_function.tanh()
+      3 -> activation_function.tanh()
     }
   }
 
@@ -49,53 +49,48 @@ pub fn neural_network_of_to_json_test() {
   }
 
   let just_created_neural_network_json =
-    neural_network.customized_init(layers(), activation_f, weight_init_f)
-    |> neural_network.to_json
+    net.new_custom(layers(), activation_f, weight_init_f)
+    |> net.to_json
 
   just_created_neural_network_json
-  |> neural_network.of_json
-  |> neural_network.to_json
+  |> net.from_json
+  |> net.to_json
   |> should.equal(just_created_neural_network_json)
 }
 
 pub fn neural_network_prediction_test() {
   should.equal(
     prediction(),
-    [-0.013959435951885419, -0.16770539176070562, 0.6127887629040737],
+    [-0.013959435951885571, -0.16770539176070537, 0.6127887629040738],
   )
 }
 
 pub fn neural_network_normal_errors_test() {
-  neural_network.errors(
+  net.errors(
     my_neural_network(),
-    learning_rate,
     input_values(),
     expected_output(),
+    True,
   )
   |> should.equal([
-    -0.18229373795952497, -0.10254022760223279, -0.09317233470223074, -0.08680645507894617,
+    -0.18229373795952453, -0.10254022760223255, -0.09317233470223055, -0.086806455078946,
   ])
 }
 
 pub fn neural_network_zero_errors_test() {
-  neural_network.errors(
-    my_neural_network(),
-    learning_rate,
-    input_values(),
-    prediction(),
-  )
+  net.errors(my_neural_network(), input_values(), prediction(), True)
   |> should.equal([0.0, 0.0, 0.0, 0.0])
 }
 
 pub fn fit_neural_network_prediction_test() {
-  neural_network.prediction(my_fit_network(), input_values())
+  net.par_predict(my_fit_network(), input_values())
   |> should.equal([
-    -0.006109464554744089, -0.17704281722371465, 0.6087944183600162,
+    -0.006109464554743645, -0.1770428172237149, 0.6087944183600162,
   ])
 }
 
 pub fn neural_network_to_svg_test() {
   my_neural_network()
-  |> neural_network.to_svg
+  |> net.to_svg
   |> should.equal(large_values.customized_neural_network_svg)
 }
