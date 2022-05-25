@@ -16,7 +16,6 @@ gleam_stdlib = "~> 0.21"
 minigen = "~> 0.0"
 gleam_zlists = "~> 0.0"
 gleam_json = "~> 0.4"
-gleam_otp = "~> 0.4"
 
 [dev-dependencies]
 gleeunit = "~> 0.6"

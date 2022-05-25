@@ -1,7 +1,7 @@
 import gleeunit/should
 import minigen
 import utils/large_values
-import gleam_synapses/activation_function.{ActivationFunction}
+import gleam_synapses/fun.{Fun}
 import gleam_synapses/net.{Net}
 
 fn my_neural_network() -> Net {
@@ -34,12 +34,12 @@ fn my_fit_network() -> Net {
 pub fn neural_network_of_to_json_test() {
   let layers = fn() -> List(Int) { [4, 6, 8, 5, 3] }
 
-  let activation_f = fn(layer_index: Int) -> ActivationFunction {
+  let activation_f = fn(layer_index: Int) -> Fun {
     case layer_index {
-      0 -> activation_function.sigmoid()
-      1 -> activation_function.identity()
-      2 -> activation_function.leaky_re_lu()
-      3 -> activation_function.tanh()
+      0 -> fun.sigmoid()
+      1 -> fun.identity()
+      2 -> fun.leaky_re_lu()
+      3 -> fun.tanh()
     }
   }
 

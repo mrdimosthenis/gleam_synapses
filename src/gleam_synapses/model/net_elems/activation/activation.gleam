@@ -1,4 +1,5 @@
 import minigen.{Generator}
+import gleam/function
 import gleam_synapses/model/mathematics
 
 pub type Activation {
@@ -15,7 +16,7 @@ fn sigmoid_f(x: Float) -> Float {
 pub fn f(activation: Activation) -> fn(Float) -> Float {
   case activation {
     Sigmoid -> sigmoid_f
-    Identity -> fn(x) { x }
+    Identity -> function.identity
     Tanh -> mathematics.tanh
     LeakyReLU -> fn(x) {
       case x <. 0.0 {
@@ -29,7 +30,7 @@ pub fn f(activation: Activation) -> fn(Float) -> Float {
 pub fn deriv(activation: Activation) -> fn(Float) -> Float {
   case activation {
     Sigmoid -> fn(d) { sigmoid_f(d) *. { 1.0 -. sigmoid_f(d) } }
-    Identity -> fn(_) { 1.0 }
+    Identity -> function.constant(1.0)
     Tanh -> fn(d) { 1.0 -. mathematics.tanh(d) *. mathematics.tanh(d) }
     LeakyReLU -> fn(d) {
       case d <. 0.0 {
@@ -46,7 +47,7 @@ pub fn inverse(activation: Activation) -> fn(Float) -> Float {
       let t = y /. { 1.0 -. y }
       mathematics.log(t)
     }
-    Identity -> fn(y) { y }
+    Identity -> function.identity
     Tanh -> fn(y) { 0.5 *. mathematics.log({ 1.0 +. y } /. { 1.0 -. y }) }
     LeakyReLU -> fn(y) {
       case y <. 0.0 {

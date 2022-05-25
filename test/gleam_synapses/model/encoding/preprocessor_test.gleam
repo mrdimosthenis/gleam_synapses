@@ -1,8 +1,8 @@
 import gleam/map.{Map}
+import gleam/iterator.{Iterator}
 import gleam_zlists.{ZList} as zlist
 import gleeunit/should
-import gleam_synapses/model/encoding/preprocessor
-import gleam_synapses/model/encoding/serialization.{Preprocessor}
+import gleam_synapses/model/encoding/preprocessor.{Preprocessor}
 
 fn datapoint_1() -> Map(String, String) {
   [#("a", "a1"), #("b", "b1"), #("c", "-8.0"), #("d", "3")]
@@ -31,9 +31,9 @@ fn datapoint_5() -> Map(String, String) {
   |> map.insert("d", "4.0")
 }
 
-fn dataset() -> ZList(Map(String, String)) {
+fn dataset() -> Iterator(Map(String, String)) {
   [datapoint_1(), datapoint_2(), datapoint_3(), datapoint_4(), datapoint_5()]
-  |> zlist.of_list
+  |> iterator.from_list
 }
 
 fn keys_with_flags() -> ZList(#(String, Bool)) {
@@ -46,7 +46,9 @@ fn my_preprocessor() -> Preprocessor {
 }
 
 fn encoded_dataset() -> ZList(ZList(Float)) {
-  zlist.map(dataset(), fn(x) { preprocessor.encode(my_preprocessor(), x) })
+  dataset()
+  |> zlist.of_iterator
+  |> zlist.map(fn(x) { preprocessor.encode(my_preprocessor(), x) })
 }
 
 fn decoded_dataset() -> ZList(Map(String, String)) {

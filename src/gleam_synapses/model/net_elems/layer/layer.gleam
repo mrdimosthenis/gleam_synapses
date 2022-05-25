@@ -2,12 +2,15 @@ import gleam_zlists.{ZList} as zlist
 import minigen.{Generator}
 import gleam_synapses/model/net_elems/activation/activation.{Activation}
 import gleam_synapses/model/net_elems/neuron/neuron.{Neuron}
-import gleam/otp/task
+
+external fn parmap(List(a), fn(a) -> b) -> List(b) =
+  "native_parmap" "parmap"
 
 fn pmap(zl: ZList(a), f: fn(a) -> b) -> ZList(b) {
   zl
-  |> zlist.map(fn(x) { task.async(fn() { f(x) }) })
-  |> zlist.map(task.await_forever)
+  |> zlist.to_list
+  |> parmap(f)
+  |> zlist.of_list
 }
 
 pub type Layer =

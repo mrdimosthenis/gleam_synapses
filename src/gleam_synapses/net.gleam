@@ -6,7 +6,7 @@ import minigen
 import gleam_synapses/model/net_elems/network/network
 import gleam_synapses/model/net_elems/network/network_serialized
 import gleam_synapses/model/draw
-import gleam_synapses/activation_function.{ActivationFunction}
+import gleam_synapses/fun.{Fun}
 
 pub type Net =
   network.Network
@@ -60,7 +60,7 @@ pub fn new_with_seed(seed: Int, layers: List(Int)) -> Net {
 
 pub fn new_custom(
   layers: List(Int),
-  activation_f: fn(Int) -> ActivationFunction,
+  activation_f: fn(Int) -> Fun,
   weight_init_f: fn(Int) -> Float,
 ) -> Net {
   layers
@@ -130,7 +130,8 @@ pub fn to_json(net: Net) -> String {
 }
 
 pub fn from_json(json: String) -> Net {
-  network_serialized.of_json(json)
+  json
+  |> network_serialized.of_json
   |> network_serialized.realized
 }
 

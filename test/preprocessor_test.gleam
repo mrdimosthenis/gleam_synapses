@@ -7,8 +7,8 @@ import gleam/map.{Map}
 import gleam_zlists as zlist
 import utils/csv
 import utils/large_values
-import gleam_synapses/model/encoding/continuous_attribute
-import gleam_synapses/data_preprocessor.{DataPreprocessor}
+import gleam_synapses/model/encoding/attribute/attribute
+import gleam_synapses/codec.{Codec}
 
 fn datapoints() -> Iterator(Map(String, String)) {
   csv.iterator_of_hmaps(large_values.mnist_dataset)
@@ -25,23 +25,23 @@ fn keys_with_discrete_flags() -> List(#(String, Bool)) {
   |> zlist.to_list
 }
 
-fn just_created_preprocessor() -> DataPreprocessor {
-  data_preprocessor.init(keys_with_discrete_flags(), datapoints())
+fn just_created_preprocessor() -> Codec {
+  codec.init(keys_with_discrete_flags(), datapoints())
 }
 
 pub fn just_created_preprocessor_json() -> String {
   just_created_preprocessor()
-  |> data_preprocessor.to_json
+  |> codec.to_json
 }
 
 pub fn just_recreated_preprocessor_json() -> String {
   just_created_preprocessor_json()
-  |> data_preprocessor.of_json
-  |> data_preprocessor.to_json
+  |> codec.from_json
+  |> codec.to_json
 }
 
-fn my_preprocessor() -> DataPreprocessor {
-  data_preprocessor.of_json(large_values.my_preprocessor_json)
+fn my_preprocessor() -> Codec {
+  codec.from_json(large_values.my_preprocessor_json)
 }
 
 fn first_datapoint() -> Map(String, String) {
@@ -50,12 +50,12 @@ fn first_datapoint() -> Map(String, String) {
 }
 
 fn first_encoded_datapoint() -> List(Float) {
-  data_preprocessor.encoded_datapoint(my_preprocessor(), first_datapoint())
+  codec.encoded_datapoint(my_preprocessor(), first_datapoint())
 }
 
 fn first_decoded_datapoint_values() -> List(Float) {
   my_preprocessor()
-  |> data_preprocessor.decoded_datapoint(first_encoded_datapoint())
+  |> codec.decoded_datapoint(first_encoded_datapoint())
   |> map.to_list
   |> list.sort(fn(t1, t2) {
     let #(k1, _) = t1
@@ -64,7 +64,7 @@ fn first_decoded_datapoint_values() -> List(Float) {
   })
   |> list.map(fn(t) {
     let #(_, v) = t
-    continuous_attribute.parse(v)
+    attribute.parse(v)
   })
 }
 
