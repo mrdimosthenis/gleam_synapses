@@ -7,7 +7,7 @@ fn layers() -> List(Int) {
 }
 
 fn my_neural_network() -> Net {
-  net.new_with_seed(1000, layers())
+  net.new_with_seed(layers(), 1000)
 }
 
 fn input_values() -> List(Float) {

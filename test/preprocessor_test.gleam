@@ -26,7 +26,7 @@ fn keys_with_discrete_flags() -> List(#(String, Bool)) {
 }
 
 fn just_created_preprocessor() -> Codec {
-  codec.init(keys_with_discrete_flags(), datapoints())
+  codec.new(keys_with_discrete_flags(), datapoints())
 }
 
 pub fn just_created_preprocessor_json() -> String {
@@ -50,12 +50,12 @@ fn first_datapoint() -> Map(String, String) {
 }
 
 fn first_encoded_datapoint() -> List(Float) {
-  codec.encoded_datapoint(my_preprocessor(), first_datapoint())
+  codec.encode(my_preprocessor(), first_datapoint())
 }
 
 fn first_decoded_datapoint_values() -> List(Float) {
   my_preprocessor()
-  |> codec.decoded_datapoint(first_encoded_datapoint())
+  |> codec.decode(first_encoded_datapoint())
   |> map.to_list
   |> list.sort(fn(t1, t2) {
     let #(k1, _) = t1

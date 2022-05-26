@@ -1,5 +1,7 @@
 name = "gleam_synapses"
-version = "0.0.2"
+version = "1.0.0"
+licences = ["Apache-2.0"]
+description = "A plug-and-play library for neural networks written in Gleam"
 
 [docs]
 links = [

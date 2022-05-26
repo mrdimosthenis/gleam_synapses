@@ -1,217 +1,282 @@
 # gleam_synapses
 
-A **neural network** library for the **Gleam** language!
+A plug-and-play library for **neural networks** written in **Gleam**!
 
-![Network Video](https://github.com/mrdimosthenis/gleam_synapses/blob/master/readme_resources/network-video.gif?raw=true)
+## Basic usage
 
-## Installation
+### Install synapses
 
-Add `gleam_synapses` to your `rebar.config` dependencies:
+Run `gleam add gleam_synapses` in the directory of your project.
 
-```erlang
-{deps, [
-    {gleam_synapses, "0.0.2"}
-]}.
-```
-
-## Import statements
+### Import the `Net` module
 
 ```gleam
-import gleam_synapses/activation_function
-import gleam_synapses/neural_network
-import gleam_synapses/data_preprocessor
-import gleam_synapses/statistics
+import gleam_synapses/net.{Net}
 ```
 
-These are the four modules you are going to need:
-
-* [activation_function](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/activation_function/)
-* [neural_network](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/)
-* [data_preprocessor](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/data_preprocessor/)
-* [statistics](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/statistics/)
-
-## Neural Network
-
-### Create a neural network
-
-Call [neural_network.init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#init) and provide the size of each _layer_.
+### Create a random neural network by providing its layer sizes
 
 ```gleam
-let layers = [4, 6, 5, 3]
-let sigmoid_network = neural_network.init(layers)
+let rand_net = net.new([2, 3, 1])
 ```
 
-`sigmoid_network` has 4 layers. The first layer has 4 input nodes and the last layer has 3 output nodes.
-There are 2 hidden layers with 6 and 5 neurons respectively.
+* Input layer: the first layer of the network has 2 nodes.
+* Hidden layer: the second layer has 3 neurons.
+* Output layer: the third layer has 1 neuron.
 
-### Get a prediction
+### Get the json of the random neural network
 
 ```gleam
-let input_values = [1.0, 0.5625, 0.511111, 0.47619]
-let prediction = neural_network.prediction(sigmoid_network, input_values)
+net.to_json(rand_net)
+// "[
+//   [{\"activationF\" : \"sigmoid\", \"weights\" : [-0.5,0.1,0.8]},
+//    {\"activationF\" : \"sigmoid\", \"weights\" : [0.7,0.6,-0.1]},
+//    {\"activationF\" : \"sigmoid\", \"weights\" : [-0.8,-0.1,-0.7]}],
+//   [{\"activationF\" : \"sigmoid\", \"weights\" : [0.5,-0.3,-0.4,-0.5]}]
+// ]"
 ```
 
-`prediction` should be something like `[ 0.8296, 0.6996, 0.4541 ]`.
 
-_Note that the lengths of input_values and prediction equal to the sizes of input and output layers respectively._
-
-### Fit network
+### Create a neural network by providing its json
 
 ```gleam
-let learning_rate = 0.5
-let expected_output = [0.0, 1.0, 0.0]
-
-let fit_network =
-  neural_network.fit(sigmoid_network, learning_rate, input_values, expected_output)
+let network = net.from_json("[
+   [{\"activationF\" : \"sigmoid\", \"weights\" : [-0.5,0.1,0.8]},
+    {\"activationF\" : \"sigmoid\", \"weights\" : [0.7,0.6,-0.1]},
+    {\"activationF\" : \"sigmoid\", \"weights\" : [-0.8,-0.1,-0.7]}],
+   [{\"activationF\" : \"sigmoid\", \"weights\" : [0.5,-0.3,-0.4,-0.5]}]
+ ]")
 ```
 
-`fit_network` is a new neural network trained with a single observation. To train a neural network, you should fit with multiple datapoints, usually by folding over an `Iterator`.
-
-### Create a customized neural network
-
-The _activation function_ of the neurons created with [neural_network.init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#init), is a sigmoid one.
-If you want to customize the _activation functions_ and the _weight distribution_, call [neural_network.customized_init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#customized_init).
+### Make a prediction
 
 ```gleam
-let activation_f = fn(layer_index) {
+net.predict(network, [0.2, 0.6])
+// [0.49131100324012494]
+```
+
+### Train a neural network
+
+```gleam
+net.fit(network, 0.1, [0.2, 0.6], [0.9])
+```
+
+The `fit` method returns the neural network with its weights adjusted to a single observation.
+
+## Advanced usage
+
+### Fully train a neural network
+
+In practice, for a neural network to be fully trained, it should be fitted with multiple observations, usually by folding over an iterator.
+
+```gleam
+[#([0.2, 0.6], [0.9]),
+ #([0.1, 0.8], [0.2]),
+ #([0.5, 0.4], [0.6])]
+|> iterator.from_list
+|> iterator.fold(network, fn(acc, t) {
+  let #(xs, ys) = t
+  net.fit(acc, 0.1, xs, ys)
+})
+```
+
+### Boost the performance
+
+Every function is efficient because its implementation is based on lazy list
+and all information is obtained at a single pass.
+
+For a neural network that has huge layers, the performance can be further improved
+by using the parallel counterparts of `predict` and `fit` (`par_predict` and `par_fit`).
+
+### Create a neural network for testing
+
+```gleam
+net.new_with_seed([2, 3, 1], 1000)
+```
+
+We can provide a `seed` to create a non-random neural network.
+This way, we can use it for testing.
+
+### Define the activation functions and the weights
+
+```gleam
+import gleam_synapses/fun.{Fun}
+import gleam/float
+
+let activation_f = fn(layer_index: Int) -> Fun {
   case layer_index {
-    0 -> activation_function.sigmoid()
-    1 -> activation_function.identity()
-    2 -> activation_function.leaky_re_lu()
-    _ -> activation_function.tanh()
+    0 -> fun.sigmoid()
+    1 -> fun.identity()
+    2 -> fun.leaky_re_lu()
+    3 -> fun.tanh()
   }
 }
 
-let weight_init_f = fn(layer_index) {
-  // https://github.com/mrdimosthenis/minigen
-  let random_float =
-    minigen.float()
-    |> minigen.run
-  let random_weight = 1.0 -. 2.0 *. random_float
-  let factor = 5.0 -. int.to_float(layer_index)
-
-  factor *. random_weight
+let weight_init_f = fn(_: Int) -> Float {
+  float.random(0.0, 1.0)
 }
 
-let my_network =
-  neural_network.customized_init(layers, activation_f, weight_init_f)
+let custom_net = net.new_custom([4, 6, 8, 5, 3], activation_f, weight_init_f)
 ```
 
-## Visualization
+* The `activation_f` function accepts the index of a layer and returns an activation function for its neurons.
+* The `weight_init_f` function accepts the index of a layer and returns a weight for the synapses of its neurons.
 
-Call [neural_network.to_svg](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#to_svg) to take a brief look at its _svg drawing_.
+If we don't provide these functions, the activation function of all neurons is sigmoid,
+and the weight distribution of the synapses is normal between -1.0 and 1.0.
+
+### Draw a neural network
 
 ```gleam
-let svg = neural_network.to_svg(my_network)
+net.to_svg(custom_net)
 ```
 
 ![Network Drawing](https://github.com/mrdimosthenis/gleam_synapses/blob/master/readme_resources/network-drawing.png?raw=true)
 
-The color of each neuron depends on its _activation function_
-while the transparency of the synapses depends on their _weight_.
+With its svg drawing, we can see what a neural network looks like.
+The color of each neuron depends on its activation function
+while the transparency of the synapses depends on their weight.
 
-## Save and load a neural network
-
-### to_json
-
-Call [neural_network.to_json](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#to_json) on a neural network and get a string representation of it.
-Use it as you like. Save `json` in the file system or insert it into a database table.
+### Measure the difference between the expected and predicted values
 
 ```gleam
-let json = neural_network.to_json(my_network)
+import gleam_synapses/stats
+
+fn exp_and_pred_vals() -> Iterator(#(List(Float), List(Float))) {
+  [
+    #([0.0, 0.0, 1.0], [0.0, 0.1, 0.9]),
+    #([0.0, 1.0, 0.0], [0.8, 0.2, 0.0]),
+    #([1.0, 0.0, 0.0], [0.7, 0.1, 0.2]),
+    #([1.0, 0.0, 0.0], [0.3, 0.3, 0.4]),
+    #([0.0, 0.0, 1.0], [0.2, 0.2, 0.6])
+  ]
+  |> iterator.from_list
+}
 ```
 
-### of_json
+* Root-mean-square error
 
 ```gleam
-let neural_network = neural_network.of_json(json)
+stats.rmse(exp_and_pred_vals())
+// 0.6957010852370435
 ```
 
-As the name suggests, [neural_network.of_json](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/neural_network/#of_json) turns a json string into a neural network.
-
-## Encoding and decoding
-
-_One hot encoding_ is a process that turns discrete attributes into a list of _0.0_ and _1.0_.
-_Minmax normalization_ scales continuous attributes into values between _0.0_ and _1.0_.
-You can use `data_preprocessor` for datapoint encoding and decoding.
-
-The first parameter of [data_preprocessor.init](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/data_preprocessor/#init) is a list of tuples _(attribute_name, discrete_or_not)_.
+* Classification accuracy score
 
 ```gleam
-let setosa_datapoint =
+stats.score(exp_and_pred_vals())
+// 0.6
+```
+
+### Import the `Codec` module
+
+```gleam
+import gleam_synapses/codec.{Codec}
+```
+
+* One hot encoding is a process that turns discrete attributes into a list of 0.0 and 1.0.
+* Minmax normalization scales continuous attributes into values between 0.0 and 1.0.
+
+```gleam
+fn setosa() -> Map(String, String) {
   [
     #("petal_length", "1.5"),
     #("petal_width", "0.1"),
     #("sepal_length", "4.9"),
     #("sepal_width", "3.1"),
-    #("species", "setosa"),
+    #("species", "setosa")
   ]
   |> map.from_list
-  
-let versicolor_datapoint =
+}
+
+fn versicolor() -> Map(String, String) {
   [
     #("petal_length", "3.8"),
     #("petal_width", "1.1"),
     #("sepal_length", "5.5"),
     #("sepal_width", "2.4"),
-    #("species", "versicolor"),
+    #("species", "versicolor")
   ]
   |> map.from_list
-  
-let virginica_datapoint =
+}
+
+fn virginica() -> Map(String, String) {
   [
     #("petal_length", "6.0"),
     #("petal_width", "2.2"),
     #("sepal_length", "5.0"),
     #("sepal_width", "1.5"),
-    #("species", "virginica"),
+    #("species", "virginica")
   ]
   |> map.from_list
-  
-let dataset =
-  [setosa_datapoint, versicolor_datapoint, virginica_datapoint]
-  |> iterator.from_list
-  
-let my_preprocessor =
-  data_preprocessor.init(
-    [
+}
+
+fn dataset() -> Iterator(Map(String, String)) {
+  iterator.from_list([setosa(), versicolor(), virginica()])
+}
+```
+
+You can use a `Codec` to encode and decode a data point.
+
+### Create a `Codec` by providing the attributes and the data points
+
+```gleam
+let cdc = codec.new([
       #("petal_length", False),
       #("petal_width", False),
       #("sepal_length", False),
       #("sepal_width", False),
-      #("species", True),
+      #("species", True))
     ],
-    dataset,
-  )
-  
-let encoded_datapoints =
-  iterator.map(
-    dataset,
-    fn(x) { data_preprocessor.encoded_datapoint(my_preprocessor, x) },
-  )
+    dataset()
+)
 ```
 
-`encoded_datapoints` should be
+* The first parameter is a list of pairs that define the name and the type (discrete or not) of each attribute.
+* The second parameter is an iterator that contains the data points.
+
+### Get the json of the codec
 
 ```gleam
-[ [ 0.0     , 0.0     , 0.0     , 1.0     , 0.0, 0.0, 1.0 ],
-  [ 0.511111, 0.476190, 1.0     , 0.562500, 0.0, 1.0, 0.0 ],
-  [ 1.0     , 1.0     , 0.166667, 0.0     , 1.0, 0.0, 0.0 ] ]
+let codec_json = codec.to_json(cdc)
+// "[
+//   {\"Case\" : \"SerializableContinuous\",
+//    \"Fields\" : [{\"key\" : \"petal_length\",\"min\" : 1.5,\"max\" : 6.0}]},
+//   {\"Case\" : \"SerializableContinuous\",
+//    \"Fields\" : [{\"key\" : \"petal_width\",\"min\" : 0.1,\"max\" : 2.2}]},
+//   {\"Case\" : \"SerializableContinuous\",
+//    \"Fields\" : [{\"key\" : \"sepal_length\",\"min\" : 4.9,\"max\" : 5.5}]},
+//   {\"Case\" : \"SerializableContinuous\",
+//    \"Fields\" : [{\"key\" : \"sepal_width\",\"min\" : 1.5,\"max\" : 3.1}]},
+//   {\"Case\" : \"SerializableDiscrete\",
+//    \"Fields\" : [{\"key\" : \"species\",\"values\" : [\"virginica\",\"versicolor\",\"setosa\"]}]}
+// ]"
 ```
 
-Save and load the preprocessor by calling [data_preprocessor.to_json](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/data_preprocessor/#to_json) and [data_preprocessor.of_json](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/data_preprocessor/#of_json).
 
-## Evaluation
-
-To evaluate a neural network, you can call [statistics.root_mean_square_error](https://hexdocs.pm/gleam_synapses/0.0.2/gleam_synapses/statistics/#root_mean_square_error) and provide the expected and predicted values.
+### Create a codec by providing its json
 
 ```gleam
-let expected_with_output_values =
-  [
-    #([0.0, 0.0, 1.0], [0.0, 0.0, 1.0]),
-    #([0.0, 0.0, 1.0], [0.0, 1.0, 1.0]),
-  ]
-  |> iterator.from_list
-  
-let rmse = statistics.root_mean_square_error(expected_with_output_values)
+codec.from_json(codec_json)
+```
+
+### Encode a data point
+
+```gleam
+let encoded_setosa = codec.encode(cdc, setosa())
+// [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
+```
+
+### Decode a data point
+
+```gleam
+codec.decode(cdc, encoded_setosa)
+|> map.to_list
+// [
+//   #("species", "setosa"),
+//   #("sepal_width", "3.1"),
+//   #("petal_width", "0.1"),
+//   #("petal_length", "1.5"),
+//   #("sepal_length", "4.9")
+// ]
 ```
