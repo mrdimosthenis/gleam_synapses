@@ -33,9 +33,7 @@ pub fn init(
   |> iterator.fold(
     tail,
     _,
-    fn(acc, x) {
-      zlist.map(acc, fn(attr) { attribute.updated(attr, x) })
-    },
+    fn(acc, x) { zlist.map(acc, fn(attr) { attribute.updated(attr, x) }) },
   )
 }
 

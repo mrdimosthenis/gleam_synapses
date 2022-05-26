@@ -43,10 +43,7 @@ pub fn new(
 /// [0.0, 1.0, 0.0]
 /// ```
 ///
-pub fn encode(
-  codec: Codec,
-  data_point: Map(String, String),
-) -> List(Float) {
+pub fn encode(codec: Codec, data_point: Map(String, String)) -> List(Float) {
   codec
   |> preprocessor.encode(data_point)
   |> zlist.to_list
@@ -62,10 +59,7 @@ pub fn encode(
 /// [#("petal_length", "1.5"), #("species","setosa")]
 /// ```
 ///
-pub fn decode(
-  codec: Codec,
-  encoded_values: List(Float),
-) -> Map(String, String) {
+pub fn decode(codec: Codec, encoded_values: List(Float)) -> Map(String, String) {
   let values = zlist.of_list(encoded_values)
   preprocessor.decode(codec, values)
 }
