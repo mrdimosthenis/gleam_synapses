@@ -1,8 +1,8 @@
+import gleam/dict.{type Dict}
 import gleam/dynamic
 import gleam/function
 import gleam/iterator.{type Iterator, Next}
 import gleam/json
-import gleam/dict.{type Dict}
 import gleam/pair
 import gleam_synapses/model/encoding/attribute/attribute.{
   type Attribute, Continuous, Discrete,

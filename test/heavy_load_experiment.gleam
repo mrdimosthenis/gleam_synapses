@@ -3,7 +3,7 @@ import gleam_synapses/net.{type Net}
 import minigen
 
 fn first_layer_size() -> Int {
-  10000
+  10_000
 }
 
 fn last_layer_size() -> Int {

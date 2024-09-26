@@ -1,7 +1,7 @@
+import gleam/dict.{type Dict}
 import gleam/float
 import gleam/int
 import gleam/json
-import gleam/dict.{type Dict}
 import gleam/pair
 import gleam/result
 import gleam/string

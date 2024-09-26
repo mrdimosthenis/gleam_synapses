@@ -1,14 +1,14 @@
-import gleeunit/should
-import gleam/int
-import gleam/string
-import gleam/list
-import gleam/iterator.{type Iterator, Next}
 import gleam/dict.{type Dict}
+import gleam/int
+import gleam/iterator.{type Iterator, Next}
+import gleam/list
+import gleam/string
+import gleam_synapses/codec.{type Codec}
+import gleam_synapses/model/encoding/attribute/attribute
 import gleam_zlists as zlist
+import gleeunit/should
 import utils/csv
 import utils/large_values
-import gleam_synapses/model/encoding/attribute/attribute
-import gleam_synapses/codec.{type Codec}
 
 fn datapoints() -> Iterator(Dict(String, String)) {
   csv.iterator_of_hmaps(large_values.mnist_dataset)

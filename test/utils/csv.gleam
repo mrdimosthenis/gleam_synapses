@@ -1,7 +1,7 @@
-import gleam/string
-import gleam/list
-import gleam/iterator.{type Iterator}
 import gleam/dict.{type Dict}
+import gleam/iterator.{type Iterator}
+import gleam/list
+import gleam/string
 
 fn lines(s: String) -> List(String) {
   string.split(s, "\n")

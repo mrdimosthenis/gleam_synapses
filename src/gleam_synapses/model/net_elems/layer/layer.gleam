@@ -1,7 +1,7 @@
-import gleam_zlists.{type ZList} as zlist
-import minigen.{type Generator}
 import gleam_synapses/model/net_elems/activation/activation.{type Activation}
 import gleam_synapses/model/net_elems/neuron/neuron.{type Neuron}
+import gleam_zlists.{type ZList} as zlist
+import minigen.{type Generator}
 
 @external(erlang, "native_parmap", "parmap")
 fn parmap(x: List(a), y: fn(a) -> b) -> List(b)
@@ -65,7 +65,7 @@ pub fn back_propagated(
     zlist.reduce(
       errors_multi,
       zlist.indices()
-      |> zlist.map(fn(_) { 0.0 }),
+        |> zlist.map(fn(_) { 0.0 }),
       fn(x, acc) {
         zlist.zip(acc, x)
         |> zlist.map(fn(t) {

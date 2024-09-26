@@ -1,7 +1,7 @@
 //// This namespace contains functions that are related to the neural networks.
 
 import gleam/list
-import gleam/option.{None, type Option, Some}
+import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam_synapses/fun.{type Fun}
 import gleam_synapses/model/draw

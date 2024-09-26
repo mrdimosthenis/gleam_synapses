@@ -1,6 +1,8 @@
 import gleam/dynamic.{type Decoder}
 import gleam/json.{type Json}
-import gleam_synapses/model/net_elems/layer/layer_serialized.{type LayerSerialized}
+import gleam_synapses/model/net_elems/layer/layer_serialized.{
+  type LayerSerialized,
+}
 import gleam_synapses/model/net_elems/network/network.{type Network}
 import gleam_zlists as zlist
 

@@ -15,8 +15,8 @@ pub fn serialized(attr: Attribute) -> Json {
           #(
             "values",
             values
-            |> zlist.to_list
-            |> json.array(json.string),
+              |> zlist.to_list
+              |> json.array(json.string),
           ),
         ])
       json.object([
@@ -68,10 +68,9 @@ pub fn decoder() -> Decoder(Attribute) {
     dynamic.field("Case", dynamic.string),
     dynamic.field(
       "Fields",
-      dynamic.list(dynamic.any([
-        discrete_field_decoder(),
-        continuous_field_decoder(),
-      ])),
+      dynamic.list(
+        dynamic.any([discrete_field_decoder(), continuous_field_decoder()]),
+      ),
     ),
   )
 }

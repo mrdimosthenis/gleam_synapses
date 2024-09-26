@@ -1,6 +1,6 @@
+import gleam_synapses/net.{type Net}
 import gleeunit/should
 import utils/large_values
-import gleam_synapses/net.{type Net}
 
 fn layers() -> List(Int) {
   [4, 6, 5, 3]
@@ -41,7 +41,10 @@ pub fn neural_network_prediction_test() {
 
 pub fn neural_network_normal_errors_test() {
   net.errors(my_neural_network(), input_values(), expected_output(), False)
-  |> should.equal([0.027456976474005072, 0.015444549266627855, 0.014033562702605208, 0.013074737627156476])
+  |> should.equal([
+    0.027456976474005072, 0.015444549266627855, 0.014033562702605208,
+    0.013074737627156476,
+  ])
 }
 
 pub fn neural_network_zero_errors_test() {

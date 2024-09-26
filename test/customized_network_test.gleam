@@ -1,8 +1,8 @@
+import gleam_synapses/fun.{type Fun}
+import gleam_synapses/net.{type Net}
 import gleeunit/should
 import minigen
 import utils/large_values
-import gleam_synapses/fun.{type Fun}
-import gleam_synapses/net.{type Net}
 
 fn my_neural_network() -> Net {
   net.from_json(large_values.customized_neural_network_json)
@@ -60,16 +60,16 @@ pub fn neural_network_of_to_json_test() {
 }
 
 pub fn neural_network_prediction_test() {
-  should.equal(
-    prediction(),
-    [-0.013959435951885571, -0.16770539176070537, 0.6127887629040738],
-  )
+  should.equal(prediction(), [
+    -0.013959435951885571, -0.16770539176070537, 0.6127887629040738,
+  ])
 }
 
 pub fn neural_network_normal_errors_test() {
   net.errors(my_neural_network(), input_values(), expected_output(), True)
   |> should.equal([
-    -0.18229373795952453, -0.10254022760223255, -0.09317233470223055, -0.086806455078946,
+    -0.18229373795952453, -0.10254022760223255, -0.09317233470223055,
+    -0.086806455078946,
   ])
 }
 

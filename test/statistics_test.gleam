@@ -1,6 +1,6 @@
 import gleam/iterator
-import gleeunit/should
 import gleam_synapses/stats
+import gleeunit/should
 
 pub fn root_mean_square_error_test() {
   [#([0.0, 0.0, 1.0], [0.0, 0.0, 1.0]), #([0.0, 0.0, 1.0], [0.0, 1.0, 1.0])]

@@ -1,8 +1,8 @@
 import gleam/dict.{type Dict}
 import gleam/iterator.{type Iterator}
+import gleam_synapses/model/encoding/preprocessor.{type Preprocessor}
 import gleam_zlists.{type ZList} as zlist
 import gleeunit/should
-import gleam_synapses/model/encoding/preprocessor.{type Preprocessor}
 
 fn datapoint_1() -> Dict(String, String) {
   [#("a", "a1"), #("b", "b1"), #("c", "-8.0"), #("d", "3")]
@@ -52,10 +52,9 @@ fn encoded_dataset() -> ZList(ZList(Float)) {
 }
 
 fn decoded_dataset() -> ZList(Dict(String, String)) {
-  zlist.map(
-    encoded_dataset(),
-    fn(x) { preprocessor.decode(my_preprocessor(), x) },
-  )
+  zlist.map(encoded_dataset(), fn(x) {
+    preprocessor.decode(my_preprocessor(), x)
+  })
 }
 
 pub fn encode_dataset_test() {
