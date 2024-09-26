@@ -1,8 +1,8 @@
 import gleam/pair
-import gleam_zlists.{ZList} as zlist
-import minigen.{Generator}
-import gleam_synapses/model/net_elems/activation/activation.{Activation}
-import gleam_synapses/model/net_elems/layer/layer.{Layer}
+import gleam_synapses/model/net_elems/activation/activation.{type Activation}
+import gleam_synapses/model/net_elems/layer/layer.{type Layer}
+import gleam_zlists.{type ZList} as zlist
+import minigen.{type Generator}
 
 pub type Network =
   ZList(Layer)
@@ -12,17 +12,14 @@ pub fn init(
   activation_f: fn(Int) -> Activation,
   weight_init_f: fn(Int) -> Float,
 ) -> Network {
-  assert Ok(tl) = zlist.tail(layer_sizes)
+  let assert Ok(tl) = zlist.tail(layer_sizes)
   zlist.zip(layer_sizes, tl)
   |> zlist.with_index
   |> zlist.map(fn(t) {
     let #(#(lr_sz, next_lr_sz), index) = t
-    layer.init(
-      lr_sz,
-      next_lr_sz,
-      activation_f(index),
-      fn() { fn() { weight_init_f(index) } },
-    )
+    layer.init(lr_sz, next_lr_sz, activation_f(index), fn() {
+      fn() { weight_init_f(index) }
+    })
   })
 }
 
@@ -31,11 +28,9 @@ pub fn output(
   input_val: ZList(Float),
   in_parallel: Bool,
 ) -> ZList(Float) {
-  zlist.reduce(
-    network,
-    input_val,
-    fn(x, acc) { layer.output(x, acc, in_parallel) },
-  )
+  zlist.reduce(network, input_val, fn(x, acc) {
+    layer.output(x, acc, in_parallel)
+  })
 }
 
 fn fed_forward_acc_f(
@@ -43,7 +38,7 @@ fn fed_forward_acc_f(
   next_layer: Layer,
   in_parallel: Bool,
 ) -> ZList(#(ZList(Float), Layer)) {
-  assert Ok(#(errors_val, layer_val)) = zlist.head(already_fed)
+  let assert Ok(#(errors_val, layer_val)) = zlist.head(already_fed)
   let next_input = layer.output(layer_val, errors_val, in_parallel)
   zlist.cons(already_fed, #(next_input, next_layer))
 }
@@ -53,15 +48,13 @@ fn fed_forward(
   input_val: ZList(Float),
   in_parallel: Bool,
 ) -> ZList(#(ZList(Float), Layer)) {
-  assert Ok(#(net_hd, net_tl)) = zlist.uncons(network)
+  let assert Ok(#(net_hd, net_tl)) = zlist.uncons(network)
   let init_feed =
     #(input_val, net_hd)
     |> zlist.singleton
-  zlist.reduce(
-    net_tl,
-    init_feed,
-    fn(x, acc) { fed_forward_acc_f(acc, x, in_parallel) },
-  )
+  zlist.reduce(net_tl, init_feed, fn(x, acc) {
+    fed_forward_acc_f(acc, x, in_parallel)
+  })
 }
 
 fn back_propagated_acc_f(
@@ -93,7 +86,7 @@ fn back_propagated(
   reversed_inputs_with_layers: ZList(#(ZList(Float), Layer)),
   in_parallel: Bool,
 ) -> #(ZList(Float), Network) {
-  assert Ok(#(#(last_input, last_layer), reversed_inputs_with_layers_tl)) =
+  let assert Ok(#(#(last_input, last_layer), reversed_inputs_with_layers_tl)) =
     zlist.uncons(reversed_inputs_with_layers)
   let output_val = layer.output(last_layer, last_input, in_parallel)
   let errors_val =
@@ -112,11 +105,9 @@ fn back_propagated(
       in_parallel,
     )
   let init_acc = #(init_errors, zlist.singleton(first_propagated))
-  zlist.reduce(
-    reversed_inputs_with_layers_tl,
-    init_acc,
-    fn(x, acc) { back_propagated_acc_f(learning_rate, acc, x, in_parallel) },
-  )
+  zlist.reduce(reversed_inputs_with_layers_tl, init_acc, fn(x, acc) {
+    back_propagated_acc_f(learning_rate, acc, x, in_parallel)
+  })
 }
 
 pub fn errors(
@@ -145,20 +136,14 @@ pub fn fit(
 }
 
 pub fn generator(layer_sizes: ZList(Int)) -> Generator(Network) {
-  assert Ok(tl) = zlist.tail(layer_sizes)
+  let assert Ok(tl) = zlist.tail(layer_sizes)
   zlist.zip(layer_sizes, tl)
-  |> zlist.reduce(
-    minigen.always(zlist.new()),
-    fn(t, acc_gen) {
-      let #(lr_sz, next_lr_sz) = t
-      minigen.then(
-        acc_gen,
-        fn(acc_zls) {
-          layer.generator(lr_sz, next_lr_sz)
-          |> minigen.map(fn(layer) { zlist.cons(acc_zls, layer) })
-        },
-      )
-    },
-  )
+  |> zlist.reduce(minigen.always(zlist.new()), fn(t, acc_gen) {
+    let #(lr_sz, next_lr_sz) = t
+    minigen.then(acc_gen, fn(acc_zls) {
+      layer.generator(lr_sz, next_lr_sz)
+      |> minigen.map(fn(layer) { zlist.cons(acc_zls, layer) })
+    })
+  })
   |> minigen.map(zlist.reverse)
 }

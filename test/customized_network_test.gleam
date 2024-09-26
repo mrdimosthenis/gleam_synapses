@@ -1,8 +1,8 @@
 import gleeunit/should
 import minigen
 import utils/large_values
-import gleam_synapses/fun.{Fun}
-import gleam_synapses/net.{Net}
+import gleam_synapses/fun.{type Fun}
+import gleam_synapses/net.{type Net}
 
 fn my_neural_network() -> Net {
   net.from_json(large_values.customized_neural_network_json)
@@ -40,6 +40,7 @@ pub fn neural_network_of_to_json_test() {
       1 -> fun.identity()
       2 -> fun.leaky_re_lu()
       3 -> fun.tanh()
+      _ -> panic as "More layers than expected"
     }
   }
 

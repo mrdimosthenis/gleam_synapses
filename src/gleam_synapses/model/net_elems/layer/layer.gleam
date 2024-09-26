@@ -1,10 +1,10 @@
-import gleam_zlists.{ZList} as zlist
-import minigen.{Generator}
-import gleam_synapses/model/net_elems/activation/activation.{Activation}
-import gleam_synapses/model/net_elems/neuron/neuron.{Neuron}
+import gleam_zlists.{type ZList} as zlist
+import minigen.{type Generator}
+import gleam_synapses/model/net_elems/activation/activation.{type Activation}
+import gleam_synapses/model/net_elems/neuron/neuron.{type Neuron}
 
-external fn parmap(List(a), fn(a) -> b) -> List(b) =
-  "native_parmap" "parmap"
+@external(erlang, "native_parmap", "parmap")
+fn parmap(x: List(a), y: fn(a) -> b) -> List(b)
 
 fn pmap(zl: ZList(a), f: fn(a) -> b) -> ZList(b) {
   zl

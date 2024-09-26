@@ -1,5 +1,5 @@
 name = "gleam_synapses"
-version = "1.0.0"
+version = "1.0.1"
 licences = ["Apache-2.0"]
 description = "A plug-and-play library for neural networks written in Gleam"
 
@@ -14,10 +14,10 @@ user = "mrdimosthenis"
 repo = "gleam_synapses"
 
 [dependencies]
-gleam_stdlib = "~> 0.21"
-minigen = "~> 0.0"
-gleam_zlists = "~> 0.0"
-gleam_json = "~> 0.4"
+gleam_stdlib = "~> 0.40.0"
+minigen = "~> 0.1.1"
+gleam_zlists = "~> 1.0.0"
+gleam_json = "~> 2.0.0"
 
 [dev-dependencies]
-gleeunit = "~> 0.6"
+gleeunit = "~> 1.2.0"

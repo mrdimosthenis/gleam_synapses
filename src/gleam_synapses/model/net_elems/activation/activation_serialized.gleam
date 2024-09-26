@@ -1,7 +1,7 @@
-import gleam/dynamic.{Decoder}
-import gleam/json.{Json}
+import gleam/dynamic.{type Decoder}
+import gleam/json.{type Json}
 import gleam_synapses/model/net_elems/activation/activation.{
-  Activation, Identity, LeakyReLU, Sigmoid, Tanh,
+  type Activation, Identity, LeakyReLU, Sigmoid, Tanh,
 }
 
 pub type ActivationSerialized =
@@ -22,6 +22,7 @@ pub fn deserialized(activation_serialized: ActivationSerialized) -> Activation {
     "identity" -> Identity
     "tanh" -> Tanh
     "leakyReLU" -> LeakyReLU
+    _ -> panic as "Unknown activation function"
   }
 }
 

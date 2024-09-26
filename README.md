@@ -11,7 +11,7 @@ Run `gleam add gleam_synapses` in the directory of your project.
 ### Import the `Net` module
 
 ```gleam
-import gleam_synapses/net.{Net}
+import gleam_synapses/net.{type Net}
 ```
 
 ### Create a random neural network by providing its layer sizes
@@ -100,7 +100,7 @@ This way, we can use it for testing.
 ### Define the activation functions and the weights
 
 ```gleam
-import gleam_synapses/fun.{Fun}
+import gleam_synapses/fun.{type Fun}
 import gleam/float
 
 let activation_f = fn(layer_index: Int) -> Fun {
@@ -171,14 +171,14 @@ stats.score(exp_and_pred_vals())
 ### Import the `Codec` module
 
 ```gleam
-import gleam_synapses/codec.{Codec}
+import gleam_synapses/codec.{type Codec}
 ```
 
 * One hot encoding is a process that turns discrete attributes into a list of 0.0 and 1.0.
 * Minmax normalization scales continuous attributes into values between 0.0 and 1.0.
 
 ```gleam
-fn setosa() -> Map(String, String) {
+fn setosa() -> Dict(String, String) {
   [
     #("petal_length", "1.5"),
     #("petal_width", "0.1"),
@@ -186,10 +186,10 @@ fn setosa() -> Map(String, String) {
     #("sepal_width", "3.1"),
     #("species", "setosa")
   ]
-  |> map.from_list
+  |> dict.from_list
 }
 
-fn versicolor() -> Map(String, String) {
+fn versicolor() -> Dict(String, String) {
   [
     #("petal_length", "3.8"),
     #("petal_width", "1.1"),
@@ -197,10 +197,10 @@ fn versicolor() -> Map(String, String) {
     #("sepal_width", "2.4"),
     #("species", "versicolor")
   ]
-  |> map.from_list
+  |> dict.from_list
 }
 
-fn virginica() -> Map(String, String) {
+fn virginica() -> Dict(String, String) {
   [
     #("petal_length", "6.0"),
     #("petal_width", "2.2"),
@@ -208,10 +208,10 @@ fn virginica() -> Map(String, String) {
     #("sepal_width", "1.5"),
     #("species", "virginica")
   ]
-  |> map.from_list
+  |> dict.from_list
 }
 
-fn dataset() -> Iterator(Map(String, String)) {
+fn dataset() -> Iterator(Dict(String, String)) {
   iterator.from_list([setosa(), versicolor(), virginica()])
 }
 ```
@@ -271,7 +271,7 @@ let encoded_setosa = codec.encode(cdc, setosa())
 
 ```gleam
 codec.decode(cdc, encoded_setosa)
-|> map.to_list
+|> dict.to_list
 // [
 //   #("species", "setosa"),
 //   #("sepal_width", "3.1"),

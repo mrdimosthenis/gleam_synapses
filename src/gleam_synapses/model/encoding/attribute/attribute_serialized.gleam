@@ -1,8 +1,8 @@
-import gleam/dynamic.{Decoder}
+import gleam/dynamic.{type Decoder}
 import gleam/function
-import gleam/json.{Json}
+import gleam/json.{type Json}
 import gleam_synapses/model/encoding/attribute/attribute.{
-  Attribute, Continuous, Discrete,
+  type Attribute, Continuous, Discrete,
 }
 import gleam_zlists as zlist
 
@@ -59,9 +59,10 @@ fn continuous_field_decoder() -> Decoder(Attribute) {
 pub fn decoder() -> Decoder(Attribute) {
   dynamic.decode2(
     fn(case_val, fields) {
-      case #(case_val, fields) {
-        #("SerializableDiscrete", [discrete]) -> discrete
-        #("SerializableContinuous", [continuous]) -> continuous
+      case case_val, fields {
+        "SerializableDiscrete", [discrete] -> discrete
+        "SerializableContinuous", [continuous] -> continuous
+        _, _ -> panic as "Unknown kind of attribute"
       }
     },
     dynamic.field("Case", dynamic.string),

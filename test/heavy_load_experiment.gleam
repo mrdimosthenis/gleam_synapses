@@ -1,5 +1,5 @@
-import gleam_synapses/fun.{Fun}
-import gleam_synapses/net.{Net}
+import gleam_synapses/fun.{type Fun}
+import gleam_synapses/net.{type Net}
 import minigen
 
 fn first_layer_size() -> Int {

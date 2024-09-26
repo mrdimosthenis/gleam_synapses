@@ -4,10 +4,10 @@
 //// Minmax normalization scales continuous attributes into values between 0.0 and 1.0.
 ////
 
-import gleam/iterator.{Iterator}
-import gleam/map.{Map}
-import gleam_zlists as zlist
+import gleam/dict.{type Dict}
+import gleam/iterator.{type Iterator}
 import gleam_synapses/model/encoding/preprocessor
+import gleam_zlists as zlist
 
 /// A codec can encode and decode every data point.
 ///
@@ -19,15 +19,15 @@ pub type Codec =
 ///
 /// ```gleam
 /// let attributes = [#("petal_length", False), #("species", True)]
-/// let setosa = map.from_list([#("petal_length", "1.5"), #("species","setosa")])
-/// let versicolor = map.from_list([#("petal_length", "3.8"), #("species","versicolor")])
+/// let setosa = dict.from_list([#("petal_length", "1.5"), #("species","setosa")])
+/// let versicolor = dict.from_list([#("petal_length", "3.8"), #("species","versicolor")])
 /// let data_points = iterator.from_list([setosa, versicolor])
 /// let cdc = codec.new(attributes, data_points)
 /// ```
 ///
 pub fn new(
   attributes: List(#(String, Bool)),
-  data_points: Iterator(Map(String, String)),
+  data_points: Iterator(Dict(String, String)),
 ) -> Codec {
   attributes
   |> zlist.of_list
@@ -43,7 +43,7 @@ pub fn new(
 /// [0.0, 1.0, 0.0]
 /// ```
 ///
-pub fn encode(codec: Codec, data_point: Map(String, String)) -> List(Float) {
+pub fn encode(codec: Codec, data_point: Dict(String, String)) -> List(Float) {
   codec
   |> preprocessor.encode(data_point)
   |> zlist.to_list
@@ -55,11 +55,11 @@ pub fn encode(codec: Codec, data_point: Map(String, String)) -> List(Float) {
 /// ```gleam
 /// cdc
 /// |> codec.decode([0.0, 1.0, 0.0])
-/// |> map.to_list
+/// |> dict.to_list
 /// [#("petal_length", "1.5"), #("species","setosa")]
 /// ```
 ///
-pub fn decode(codec: Codec, encoded_values: List(Float)) -> Map(String, String) {
+pub fn decode(codec: Codec, encoded_values: List(Float)) -> Dict(String, String) {
   let values = zlist.of_list(encoded_values)
   preprocessor.decode(codec, values)
 }

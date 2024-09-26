@@ -1,17 +1,17 @@
 import gleam/float
 import gleam/int
 import gleam/pair
-import gleam/iterator.{Iterator}
-import gleam_zlists.{ZList} as zlist
+import gleam/iterator.{type Iterator}
+import gleam_zlists.{type ZList} as zlist
 
-pub external fn exp(x: Float) -> Float =
-  "math" "exp"
+@external(erlang, "math", "exp")
+pub fn exp(x: Float) -> Float
 
-pub external fn log(x: Float) -> Float =
-  "math" "log"
+@external(erlang, "math", "log")
+pub fn log(x: Float) -> Float
 
-pub external fn tanh(x: Float) -> Float =
-  "math" "tanh"
+@external(erlang, "math", "tanh")
+pub fn tanh(x: Float) -> Float
 
 pub fn dot_product(left: ZList(Float), right: ZList(Float)) -> Float {
   zlist.zip(left, right)
@@ -23,7 +23,7 @@ pub fn dot_product(left: ZList(Float), right: ZList(Float)) -> Float {
 }
 
 fn euclidean_distance(xs: ZList(Float), ys: ZList(Float)) -> Float {
-  assert Ok(res) =
+  let assert Ok(res) =
     xs
     |> zlist.zip(ys)
     |> zlist.map(fn(t) {
@@ -54,12 +54,12 @@ pub fn root_mean_square_error(
       },
     )
   let avg = s /. int.to_float(n)
-  assert Ok(res) = float.square_root(avg)
+  let assert Ok(res) = float.square_root(avg)
   res
 }
 
 fn index_of_max_val(ys: ZList(Float)) -> Int {
-  assert Ok(#(hd, rst)) =
+  let assert Ok(#(hd, rst)) =
     zlist.indices()
     |> zlist.zip(ys)
     |> zlist.uncons

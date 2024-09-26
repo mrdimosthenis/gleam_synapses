@@ -1,6 +1,6 @@
 //// Measure the difference between the values predicted by a neural network and the observed values.
 
-import gleam/iterator.{Iterator}
+import gleam/iterator.{type Iterator}
 import gleam_zlists as zlist
 import gleam_synapses/model/mathematics
 

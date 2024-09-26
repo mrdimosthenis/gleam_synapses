@@ -1,37 +1,37 @@
-import gleam/map.{Map}
-import gleam/iterator.{Iterator}
-import gleam_zlists.{ZList} as zlist
+import gleam/dict.{type Dict}
+import gleam/iterator.{type Iterator}
+import gleam_zlists.{type ZList} as zlist
 import gleeunit/should
-import gleam_synapses/model/encoding/preprocessor.{Preprocessor}
+import gleam_synapses/model/encoding/preprocessor.{type Preprocessor}
 
-fn datapoint_1() -> Map(String, String) {
+fn datapoint_1() -> Dict(String, String) {
   [#("a", "a1"), #("b", "b1"), #("c", "-8.0"), #("d", "3")]
-  |> map.from_list
+  |> dict.from_list
 }
 
-fn datapoint_2() -> Map(String, String) {
+fn datapoint_2() -> Dict(String, String) {
   datapoint_1()
-  |> map.insert("b", "b2")
+  |> dict.insert("b", "b2")
 }
 
-fn datapoint_3() -> Map(String, String) {
+fn datapoint_3() -> Dict(String, String) {
   datapoint_1()
-  |> map.insert("b", "b3")
+  |> dict.insert("b", "b3")
 }
 
-fn datapoint_4() -> Map(String, String) {
+fn datapoint_4() -> Dict(String, String) {
   datapoint_1()
-  |> map.insert("b", "b4")
-  |> map.insert("d", "5.0")
+  |> dict.insert("b", "b4")
+  |> dict.insert("d", "5.0")
 }
 
-fn datapoint_5() -> Map(String, String) {
+fn datapoint_5() -> Dict(String, String) {
   datapoint_1()
-  |> map.insert("b", "b5")
-  |> map.insert("d", "4.0")
+  |> dict.insert("b", "b5")
+  |> dict.insert("d", "4.0")
 }
 
-fn dataset() -> Iterator(Map(String, String)) {
+fn dataset() -> Iterator(Dict(String, String)) {
   [datapoint_1(), datapoint_2(), datapoint_3(), datapoint_4(), datapoint_5()]
   |> iterator.from_list
 }
@@ -51,7 +51,7 @@ fn encoded_dataset() -> ZList(ZList(Float)) {
   |> zlist.map(fn(x) { preprocessor.encode(my_preprocessor(), x) })
 }
 
-fn decoded_dataset() -> ZList(Map(String, String)) {
+fn decoded_dataset() -> ZList(Dict(String, String)) {
   zlist.map(
     encoded_dataset(),
     fn(x) { preprocessor.decode(my_preprocessor(), x) },
@@ -75,11 +75,11 @@ pub fn decode_dataset_test() {
   decoded_dataset()
   |> zlist.to_list
   |> should.equal([
-    map.from_list([#("a", "a1"), #("b", "b1"), #("c", "-8.0"), #("d", "3.0")]),
-    map.from_list([#("a", "a1"), #("b", "b2"), #("c", "-8.0"), #("d", "3.0")]),
-    map.from_list([#("a", "a1"), #("b", "b3"), #("c", "-8.0"), #("d", "3.0")]),
-    map.from_list([#("a", "a1"), #("b", "b4"), #("c", "-8.0"), #("d", "5.0")]),
-    map.from_list([#("a", "a1"), #("b", "b5"), #("c", "-8.0"), #("d", "4.0")]),
+    dict.from_list([#("a", "a1"), #("b", "b1"), #("c", "-8.0"), #("d", "3.0")]),
+    dict.from_list([#("a", "a1"), #("b", "b2"), #("c", "-8.0"), #("d", "3.0")]),
+    dict.from_list([#("a", "a1"), #("b", "b3"), #("c", "-8.0"), #("d", "3.0")]),
+    dict.from_list([#("a", "a1"), #("b", "b4"), #("c", "-8.0"), #("d", "5.0")]),
+    dict.from_list([#("a", "a1"), #("b", "b5"), #("c", "-8.0"), #("d", "4.0")]),
   ])
 }
 

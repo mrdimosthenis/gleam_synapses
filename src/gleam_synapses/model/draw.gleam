@@ -1,13 +1,13 @@
 import gleam/float
 import gleam/int
-import gleam/string
 import gleam/option.{None, Some}
 import gleam/result
-import gleam_zlists.{ZList} as zlist
+import gleam/string
 import gleam_synapses/model/net_elems/activation/activation_serialized
-import gleam_synapses/model/net_elems/neuron/neuron.{Neuron}
-import gleam_synapses/model/net_elems/layer/layer.{Layer}
-import gleam_synapses/model/net_elems/network/network.{Network}
+import gleam_synapses/model/net_elems/layer/layer.{type Layer}
+import gleam_synapses/model/net_elems/network/network.{type Network}
+import gleam_synapses/model/net_elems/neuron/neuron.{type Neuron}
+import gleam_zlists.{type ZList} as zlist
 
 const pixels: Float = 400.0
 
@@ -55,19 +55,22 @@ fn activation_name_to_stroke(activ_name: String) -> String {
     "identity" -> identity_circle_stroke
     "tanh" -> tanh_circle_stroke
     "leakyReLU" -> leaky__re_lu_circle_stroke
+    _ -> panic as "Unknown activation function"
   }
 }
 
 fn layer_width(num_of_circles: Int) -> Float {
   let num_of_circles_float = int.to_float(num_of_circles)
-  circle_vertical_distance() +. num_of_circles_float *. {
-    2.0 *. circle_radius() +. circle_vertical_distance()
-  }
+  circle_vertical_distance()
+  +. num_of_circles_float
+  *. { 2.0 *. circle_radius() +. circle_vertical_distance() }
 }
 
 fn circle_cx(chain_order: Int) -> Float {
   let chain_order_float = int.to_float(chain_order)
-  circle_horizontal_distance() +. chain_order_float *. circle_horizontal_distance()
+  circle_horizontal_distance()
+  +. chain_order_float
+  *. circle_horizontal_distance()
 }
 
 fn circle_cy(
@@ -79,9 +82,9 @@ fn circle_cy(
   let max_layer_width = layer_width(max_chain_circles)
   let layer_y = 0.5 *. { max_layer_width -. current_layer_width }
   let circle_order_float = int.to_float(circle_order)
-  layer_y +. { circle_order_float +. 1.0 } *. {
-    2.0 *. circle_radius() +. circle_vertical_distance()
-  }
+  layer_y
+  +. { circle_order_float +. 1.0 }
+  *. { 2.0 *. circle_radius() +. circle_vertical_distance() }
 }
 
 fn circle_svg(x: Float, y: Float, stroke_val: String) -> String {
@@ -171,17 +174,14 @@ fn layer_circles_svgs(
   layer_val: Layer,
 ) -> ZList(String) {
   let is_last_layer = layer_order == num_of_layers - 1
-  assert Ok(prev_layer_size) =
+  let assert Ok(prev_layer_size) =
     layer_val
     |> zlist.head
     |> result.map(fn(neuron_val: Neuron) { zlist.count(neuron_val.weights) })
   let activations =
-    zlist.map(
-      layer_val,
-      fn(neuron_val: Neuron) {
-        activation_serialized.serialized(neuron_val.activation_f)
-      },
-    )
+    zlist.map(layer_val, fn(neuron_val: Neuron) {
+      activation_serialized.serialized(neuron_val.activation_f)
+    })
   let input_circles = case layer_order == 0 {
     True -> input_circles_svgs(max_chain_circles, prev_layer_size)
     False -> zlist.new()
@@ -311,7 +311,7 @@ fn layer_lines_svgs(
 
 pub fn network_svg(network_val: Network) -> String {
   let num_of_layers = zlist.count(network_val)
-  assert Ok(max_chain_circles_float) =
+  let assert Ok(max_chain_circles_float) =
     network_val
     |> zlist.with_index
     |> zlist.map(fn(t: #(Layer, Int)) {
@@ -324,15 +324,12 @@ pub fn network_svg(network_val: Network) -> String {
     |> zlist.map(int.to_float)
     |> zlist.max
   let max_chain_circles = float.round(max_chain_circles_float)
-  assert Ok(max_abs_weight) =
+  let assert Ok(max_abs_weight) =
     network_val
     |> zlist.flat_map(fn(layer_val) {
-      zlist.flat_map(
-        layer_val,
-        fn(neuron_val: Neuron) {
-          zlist.map(neuron_val.weights, fn(w) { float.absolute_value(w) })
-        },
-      )
+      zlist.flat_map(layer_val, fn(neuron_val: Neuron) {
+        zlist.map(neuron_val.weights, fn(w) { float.absolute_value(w) })
+      })
     })
     |> zlist.max
   let circles_svgs =

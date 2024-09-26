@@ -1,6 +1,6 @@
 import gleeunit/should
 import utils/large_values
-import gleam_synapses/net.{Net}
+import gleam_synapses/net.{type Net}
 
 fn layers() -> List(Int) {
   [4, 6, 5, 3]

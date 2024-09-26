@@ -1,8 +1,8 @@
-import gleam/dynamic.{Decoder}
+import gleam/dynamic.{type Decoder}
 import gleam_zlists as zlist
-import gleam/json.{Json}
-import gleam_synapses/model/net_elems/neuron/neuron_serialized.{NeuronSerialized}
-import gleam_synapses/model/net_elems/layer/layer.{Layer}
+import gleam/json.{type Json}
+import gleam_synapses/model/net_elems/neuron/neuron_serialized.{type NeuronSerialized}
+import gleam_synapses/model/net_elems/layer/layer.{type Layer}
 
 pub type LayerSerialized =
   List(NeuronSerialized)

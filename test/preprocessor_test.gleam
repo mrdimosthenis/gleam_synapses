@@ -2,15 +2,15 @@ import gleeunit/should
 import gleam/int
 import gleam/string
 import gleam/list
-import gleam/iterator.{Iterator, Next}
-import gleam/map.{Map}
+import gleam/iterator.{type Iterator, Next}
+import gleam/dict.{type Dict}
 import gleam_zlists as zlist
 import utils/csv
 import utils/large_values
 import gleam_synapses/model/encoding/attribute/attribute
-import gleam_synapses/codec.{Codec}
+import gleam_synapses/codec.{type Codec}
 
-fn datapoints() -> Iterator(Map(String, String)) {
+fn datapoints() -> Iterator(Dict(String, String)) {
   csv.iterator_of_hmaps(large_values.mnist_dataset)
 }
 
@@ -44,8 +44,8 @@ fn my_preprocessor() -> Codec {
   codec.from_json(large_values.my_preprocessor_json)
 }
 
-fn first_datapoint() -> Map(String, String) {
-  assert Next(res, _) = iterator.step(datapoints())
+fn first_datapoint() -> Dict(String, String) {
+  let assert Next(res, _) = iterator.step(datapoints())
   res
 }
 
@@ -56,7 +56,7 @@ fn first_encoded_datapoint() -> List(Float) {
 fn first_decoded_datapoint_values() -> List(Float) {
   my_preprocessor()
   |> codec.decode(first_encoded_datapoint())
-  |> map.to_list
+  |> dict.to_list
   |> list.sort(fn(t1, t2) {
     let #(k1, _) = t1
     let #(k2, _) = t2

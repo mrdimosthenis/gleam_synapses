@@ -1,7 +1,7 @@
-import gleam_zlists.{ZList} as zlist
-import minigen.{Generator}
 import gleam_synapses/model/mathematics as maths
-import gleam_synapses/model/net_elems/activation/activation.{Activation}
+import gleam_synapses/model/net_elems/activation/activation.{type Activation}
+import gleam_zlists.{type ZList} as zlist
+import minigen.{type Generator}
 
 pub type Neuron {
   Neuron(activation_f: Activation, weights: ZList(Float))

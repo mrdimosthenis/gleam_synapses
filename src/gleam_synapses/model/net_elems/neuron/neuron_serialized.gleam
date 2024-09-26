@@ -1,16 +1,16 @@
-import gleam/dynamic.{Decoder}
+import gleam/dynamic.{type Decoder}
 import gleam_zlists as zlist
-import gleam/json.{Json}
+import gleam/json.{type Json}
 import gleam_synapses/model/net_elems/activation/activation_serialized.{
-  ActivationSerialized,
+  type ActivationSerialized,
 }
-import gleam_synapses/model/net_elems/neuron/neuron.{Neuron}
+import gleam_synapses/model/net_elems/neuron/neuron.{type Neuron}
 
 pub type NeuronSerialized {
   NeuronSerialized(activation_f: ActivationSerialized, weights: List(Float))
 }
 
-pub fn serialized(neuron: Neuron) -> NeuronSerialized {
+pub fn serialized(neuron: neuron.Neuron) -> NeuronSerialized {
   NeuronSerialized(
     activation_serialized.serialized(neuron.activation_f),
     zlist.to_list(neuron.weights),
@@ -18,7 +18,7 @@ pub fn serialized(neuron: Neuron) -> NeuronSerialized {
 }
 
 pub fn deserialized(neuron_serialized: NeuronSerialized) -> Neuron {
-  Neuron(
+  neuron.Neuron(
     activation_serialized.deserialized(neuron_serialized.activation_f),
     zlist.of_list(neuron_serialized.weights),
   )

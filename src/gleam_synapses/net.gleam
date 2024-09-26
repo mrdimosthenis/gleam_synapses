@@ -1,14 +1,14 @@
 //// This namespace contains functions that are related to the neural networks.
 
-import gleam/option.{None, Option, Some}
 import gleam/list
+import gleam/option.{None, type Option, Some}
 import gleam/result
-import gleam_zlists as zlist
-import minigen
+import gleam_synapses/fun.{type Fun}
+import gleam_synapses/model/draw
 import gleam_synapses/model/net_elems/network/network
 import gleam_synapses/model/net_elems/network/network_serialized
-import gleam_synapses/model/draw
-import gleam_synapses/fun.{Fun}
+import gleam_zlists as zlist
+import minigen
 
 pub type Net =
   network.Network
@@ -26,27 +26,27 @@ fn seed_init(maybe_seed: Option(Int), layers: List(Int)) -> Net {
 
 fn fail_if_input_not_match(net: Net, input_values: List(Float)) -> Nil {
   let num_of_input_vals = list.length(input_values)
-  assert Ok(first_neuron) =
+  let assert Ok(first_neuron) =
     net
     |> zlist.head
     |> result.then(zlist.head)
   let input_layer_size = zlist.count(first_neuron.weights) - 1
   let is_equal = num_of_input_vals == input_layer_size
   // TODO: provide the reason of the failure
-  assert True = is_equal
+  let assert True = is_equal
   Nil
 }
 
 fn fail_if_expected_not_match(net: Net, expected_output: List(Float)) -> Nil {
   let num_of_expected_vals = list.length(expected_output)
-  assert Ok(output_layer_size) =
+  let assert Ok(output_layer_size) =
     net
     |> zlist.reverse
     |> zlist.head
     |> result.map(zlist.count)
   let is_equal = num_of_expected_vals == output_layer_size
   // TODO: provide the reason of the failure
-  assert True = is_equal
+  let assert True = is_equal
   Nil
 }
 

@@ -1,8 +1,8 @@
-import gleam/dynamic.{Decoder}
+import gleam/dynamic.{type Decoder}
+import gleam/json.{type Json}
+import gleam_synapses/model/net_elems/layer/layer_serialized.{type LayerSerialized}
+import gleam_synapses/model/net_elems/network/network.{type Network}
 import gleam_zlists as zlist
-import gleam/json.{Json}
-import gleam_synapses/model/net_elems/layer/layer_serialized.{LayerSerialized}
-import gleam_synapses/model/net_elems/network/network.{Network}
 
 type NetworkSerialized =
   List(LayerSerialized)
@@ -35,7 +35,7 @@ pub fn to_json(network: Network) -> String {
 }
 
 pub fn of_json(s: String) -> Network {
-  assert Ok(res) = json.decode(s, json_decoder())
+  let assert Ok(res) = json.decode(s, json_decoder())
   deserialized(res)
 }
 
